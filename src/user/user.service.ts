@@ -1,7 +1,12 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './user.schema';
+import { LoginDto } from './dto/login.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 
@@ -11,7 +16,7 @@ export class UserService {
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     if (createUserDto.password) {
-      // 자체 로그인 처리
+      // 비밀번호 해싱 처리
       const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
       createUserDto.password = hashedPassword;
     } else {
@@ -31,6 +36,22 @@ export class UserService {
   private isExternalLogin(createUserDto: CreateUserDto): boolean {
     // 비밀번호가 없으면 외부 로그인
     return !createUserDto.password;
+  }
+
+  async login(loginDto: LoginDto): Promise<User> {
+    const { username, password } = loginDto;
+    const user = await this.userModel.findOne({ username });
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    return user; // 유저 정보를 반환합니다.
   }
 
   // 기타 서비스 메서드 (find, update, delete 등)
