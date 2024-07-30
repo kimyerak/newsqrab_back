@@ -11,7 +11,7 @@ import puppeteer from 'puppeteer';
 export class ArticleService {
   constructor(
     @InjectModel(Article.name) private articleModel: Model<Article>,
-  ) { }
+  ) {}
 
   async create(createArticleDto: CreateArticleDto): Promise<Article> {
     const newArticle = new this.articleModel(createArticleDto);
@@ -54,7 +54,10 @@ export class ArticleService {
     return uniqueLinks;
   }
 
-  async fetchArticleDetails(articleUrl: string, articleCategory: string,): Promise<void> {
+  async fetchArticleDetails(
+    articleUrl: string,
+    articleCategory: string,
+  ): Promise<void> {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.goto(articleUrl, {
@@ -117,8 +120,10 @@ export class ArticleService {
         el.textContent.trim(),
       );
       const imageElement = await page.$('.end_photo_org img');
-      const photo = imageElement ? await page.evaluate(img => img.src, imageElement) : null;
-      const date = await page.$eval('.date', el => el.textContent.trim());
+      const photo = imageElement
+        ? await page.evaluate((img) => img.src, imageElement)
+        : null;
+      const date = await page.$eval('.date', (el) => el.textContent.trim());
       const articleDto = new CreateArticleDto();
       articleDto.title = title;
       articleDto.url = articleLink;
@@ -137,12 +142,24 @@ export class ArticleService {
     );
     for (const articleLink of sportsArticleLinks) {
       await page.goto(articleLink, { waitUntil: 'networkidle0' });
-      const title = await page.$eval('.NewsEndMain_article_title__kqEzS', el => el.textContent.trim());
-      const author = await page.$eval('.NewsEndMain_article_journalist_info__Cdr3D', el => el.textContent.trim());
-      const content = await page.$eval('._article_content', el => el.textContent.trim());
+      const title = await page.$eval(
+        '.NewsEndMain_article_title__kqEzS',
+        (el) => el.textContent.trim(),
+      );
+      const author = await page.$eval(
+        '.NewsEndMain_article_journalist_info__Cdr3D',
+        (el) => el.textContent.trim(),
+      );
+      const content = await page.$eval('._article_content', (el) =>
+        el.textContent.trim(),
+      );
       const imageElement = await page.$('.end_photo_org img');
-      const photo = imageElement ? await page.evaluate(img => img.src, imageElement) : null;
-      const date = await page.$eval('.article_head_info em', el => el?.textContent.trim());
+      const photo = imageElement
+        ? await page.evaluate((img) => img.src, imageElement)
+        : null;
+      const date = await page.$eval('.article_head_info em', (el) =>
+        el?.textContent.trim(),
+      );
       const articleDto = new CreateArticleDto();
       articleDto.title = title;
       articleDto.url = articleLink;
