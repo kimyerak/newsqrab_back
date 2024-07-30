@@ -21,6 +21,9 @@ export class Article extends Document {
   @Prop()
   category?: string; // 기사 카테고리 (예: 경제, 정치, 문화)
 
+  @Prop()
+  picture?: string; // 대표 이미지 URL
+
   @Prop({ default: Date.now })
   createdAt: Date;
 }

@@ -1,9 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+const cron = require('node-cron');
+
+import { ArticleService } from './article/article.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const articleService = app.get(ArticleService);
 
   // CORS 설정 추가
   app.enableCors({
@@ -20,6 +24,15 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document); // Swagger 문서 URL을 '/api'로 설정
+
+  // cron.schedule('* * * * *', async () => {
+    console.log('Running a task every midnight');
+    const news = await articleService.fetchNews();
+    // console.log(news);
+  // }, {
+  //   scheduled: true,
+  //   timezone: "Asia/Seoul"
+  // });
 
   await app.listen(3000);
 }
