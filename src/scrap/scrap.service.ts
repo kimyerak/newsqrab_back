@@ -39,6 +39,8 @@ export class ScrapService {
 
     return scrap.save();
   }
-
+  async findScrapsByUserNickname(usernickname: string): Promise<Scrap[]> {
+    return this.scrapModel.find({ usernickname }).exec();
+  }
   // Additional methods for CRUD operations can be added here
 }

@@ -15,10 +15,14 @@ import {
 } from './dto/update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
+import { S3Service } from '../s3/s3.service';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<User>,
+    private readonly s3Service: S3Service,
+  ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     // username 중복 체크
@@ -71,7 +75,16 @@ export class UserService {
   async updateUserProfile(
     id: string,
     updateUserProfileDto: UpdateUserProfileDto,
+    profileImage?: Express.Multer.File, // 프로필 이미지 파일 추가
   ): Promise<User> {
+    if (profileImage) {
+      const profileImageUrl = await this.s3Service.uploadFile(
+        'profiles',
+        profileImage,
+      );
+      updateUserProfileDto.profilePicture = profileImageUrl;
+    }
+
     const updatedUser = await this.userModel
       .findByIdAndUpdate(id, updateUserProfileDto, { new: true })
       .exec();

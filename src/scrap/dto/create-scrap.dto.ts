@@ -22,6 +22,19 @@ export class CreateScrapDto {
   @IsString()
   userId: string; // 변경: ObjectId -> string
 
+  @ApiProperty({ description: 'Nickname of the scrap owner' })
+  @IsNotEmpty()
+  @IsString()
+  usernickname: string; // 추가
+
+  @ApiProperty({
+    description: 'Profile picture URL of the scrap owner',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  profilePicture?: string; // 추가
+
   @ApiProperty({ description: 'Article ID related to the scrap' })
   @IsNotEmpty()
   @IsString()
