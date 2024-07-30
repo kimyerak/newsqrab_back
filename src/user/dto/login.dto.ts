@@ -10,3 +10,13 @@ export class LoginDto {
   @IsString()
   password: string;
 }
+export class LoginResponseDto {
+  @ApiProperty({ description: 'The unique identifier of the user' })
+  _id: string;
+
+  @ApiProperty({ description: 'The username of the user' })
+  username: string;
+
+  @ApiProperty({ description: 'The nickname of the user' })
+  nickname: string;
+}

@@ -55,3 +55,31 @@ export class CreateUserDto {
   @IsOptional()
   scraps?: Types.ObjectId[];
 }
+export class CreateUserResponseDto {
+  @ApiProperty({ description: 'The unique identifier of the user' })
+  _id: string;
+
+  @ApiProperty({ description: 'The username of the user' })
+  username: string;
+
+  @ApiProperty({ description: 'The nickname of the user' })
+  nickname: string;
+
+  @ApiProperty({
+    description: 'The profile picture URL of the user',
+    required: false,
+  })
+  profilePicture?: string;
+
+  @ApiProperty({
+    description: 'A short biography of the user',
+    required: false,
+  })
+  bio?: string;
+
+  @ApiProperty({ description: 'The date when the user was created' })
+  createdAt: Date;
+
+  @ApiProperty({ description: 'The date when the user was last updated' })
+  updatedAt: Date;
+}

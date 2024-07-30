@@ -7,9 +7,9 @@ export interface User {
   nickname: string;
   profilePicture?: string;
   bio?: string;
-  following: Types.ObjectId[];
-  followers: Types.ObjectId[];
-  scraps: Types.ObjectId[];
+  following?: Types.ObjectId[];
+  followers?: Types.ObjectId[];
+  scraps?: Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }
