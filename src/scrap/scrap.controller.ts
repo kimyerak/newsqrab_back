@@ -58,5 +58,16 @@ export class ScrapController {
     };
   }
 
-  // Additional endpoints for other CRUD operations can be added here
+  @Get(':usernickname')
+  @ApiOperation({ summary: 'Get scraps by user nickname' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of scraps for the specified user nickname.',
+    type: [CreateScrapDto],
+  })
+  async getScrapsByUserNickname(
+    @Param('usernickname') usernickname: string,
+  ): Promise<Scrap[]> {
+    return this.scrapService.findScrapsByUserNickname(usernickname);
+  }
 }

@@ -5,6 +5,8 @@ export const ScrapSchema = new Schema({
   url: { type: String, required: true },
   date: { type: String, required: true },
   userId: { type: Schema.Types.ObjectId, required: true },
+  usernickname: { type: String, required: true }, // 추가
+  profilePicture: { type: String, required: false }, // 추가
   articleId: { type: Schema.Types.ObjectId, required: true },
   highlightedText: { type: String },
   myemoji: { type: String },
@@ -23,6 +25,8 @@ export interface Scrap extends Document {
   url: string;
   date: string;
   userId: string;
+  usernickname: string; // 추가
+  profilePicture: string; // 추가
   articleId: string;
   highlightedText: string;
   myemoji: string;

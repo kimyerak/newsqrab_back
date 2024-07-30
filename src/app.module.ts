@@ -10,6 +10,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ScrapModule } from './scrap/scrap.module';
 import { OpenAiService } from './openai/openai.service';
 import { ScheduleModule } from '@nestjs/schedule';
+import { S3Module } from './s3/s3.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     ArticleModule,
     ReelsModule,
     ScrapModule,
+    S3Module,
     ScheduleModule.forRoot(),
   ],
   controllers: [AppController],

@@ -31,4 +31,17 @@ export class UpdateScrapDto {
   @ValidateNested({ each: true })
   @Type(() => FollowerEmojiDto)
   followerEmojis?: FollowerEmojiDto[];
+
+  @ApiProperty({ description: 'Nickname of the scrap owner', required: false })
+  @IsOptional()
+  @IsString()
+  usernickname?: string; // 추가
+
+  @ApiProperty({
+    description: 'Profile picture URL of the scrap owner',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  profilePicture?: string; // 추가
 }
