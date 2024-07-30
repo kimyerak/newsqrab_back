@@ -1,6 +1,8 @@
 import { IsString, IsNotEmpty, IsArray } from 'class-validator';
 import { Types } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+
 
 export class CreateReelsDto {
   @ApiProperty({ description: 'Owner of the reels, e.g., a newspaper name' })
@@ -14,6 +16,7 @@ export class CreateReelsDto {
   })
   @IsArray()
   @IsNotEmpty()
+  @Type(() => String)
   articleId: Types.ObjectId[];
 
   @ApiProperty({ description: 'The speech that the avatar will say' })
