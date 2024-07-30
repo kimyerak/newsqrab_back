@@ -85,16 +85,20 @@ export class ArticleService {
     const date = await page.$eval('.media_end_head_info_datestamp_time', (el) =>
       el.textContent.trim(),
     );
-    const articleDto = new CreateArticleDto();
-    articleDto.title = title;
-    articleDto.url = articleUrl;
-    articleDto.content = content;
-    articleDto.author = author;
-    articleDto.date = date;
-    articleDto.photo = photo;
-    articleDto.category = articleCategory;
-    await this.create(articleDto);
 
+    const existingArticle = await this.articleModel.findOne({ title });
+    if (!existingArticle) {
+      const articleDto = new CreateArticleDto();
+      articleDto.title = title;
+      articleDto.url = articleUrl;
+      articleDto.content = content;
+      articleDto.author = author;
+      articleDto.date = date;
+      articleDto.photo = photo;
+      articleDto.category = articleCategory;
+
+      await this.create(articleDto);
+    }
     await browser.close();
 
     // return { title, author, content, photo, date };
@@ -123,15 +127,19 @@ export class ArticleService {
       const imageElement = await page.$('.end_photo_org img');
       const photo = imageElement ? await page.evaluate(img => img.src, imageElement) : null;
       const date = await page.$eval('.date', el => el.textContent.trim());
-      const articleDto = new CreateArticleDto();
-      articleDto.title = title;
-      articleDto.url = articleLink;
-      articleDto.content = content;
-      articleDto.author = author;
-      articleDto.date = date;
-      articleDto.photo = photo;
-      articleDto.category = 'Entertainment';
-      await this.create(articleDto);
+
+      const existingArticle = await this.articleModel.findOne({ title });
+      if (!existingArticle) {
+        const articleDto = new CreateArticleDto();
+        articleDto.title = title;
+        articleDto.url = articleLink;
+        articleDto.content = content;
+        articleDto.author = author;
+        articleDto.date = date;
+        articleDto.photo = photo;
+        articleDto.category = 'Entertainment';
+        await this.create(articleDto);
+      }
     }
 
     const sportsUrl = 'https://sports.news.naver.com/index';
@@ -147,15 +155,19 @@ export class ArticleService {
       const imageElement = await page.$('.end_photo_org img');
       const photo = imageElement ? await page.evaluate(img => img.src, imageElement) : null;
       const date = await page.$eval('.article_head_info em', el => el?.textContent.trim());
-      const articleDto = new CreateArticleDto();
-      articleDto.title = title;
-      articleDto.url = articleLink;
-      articleDto.content = content;
-      articleDto.author = author;
-      articleDto.date = date;
-      articleDto.photo = photo;
-      articleDto.category = 'Sports';
-      await this.create(articleDto);
+
+      const existingArticle = await this.articleModel.findOne({ title });
+      if (!existingArticle) {
+        const articleDto = new CreateArticleDto();
+        articleDto.title = title;
+        articleDto.url = articleLink;
+        articleDto.content = content;
+        articleDto.author = author;
+        articleDto.date = date;
+        articleDto.photo = photo;
+        articleDto.category = 'Sports';
+        await this.create(articleDto);
+      }
     }
 
     const newsUrls = {
@@ -182,18 +194,23 @@ export class ArticleService {
     const todayStart = moment().startOf('day').toDate();
 
     const randomArticles = await this.articleModel.aggregate([
-      // { $match: { createdAt: { $gte: yesterdayStart, $lt: todayStart } } }, // 어제에 해당하는 기사 필터링
+      // {
+      //   $match: {
+      //     createdAt: { $gte: yesterdayStart, $lt: todayStart }
+      //   }
+      // },
       {
         $group: {
           _id: "$category",
           articles: { $push: "$$ROOT" }
         }
       },
-      { $sample: { size: 1 } },  // 랜덤하게 한 카테고리 선택
-      { $unwind: "$articles" },  // articles 배열 해체
-      { $sample: { size: 1 } },  // 선택된 카테고리의 기사 중 하나 랜덤 선택
-      { $replaceRoot: { newRoot: "$articles" } }  // 최상위 문서로 이동
-    ]);
+      {
+        $project: {
+          randomArticle: { $arrayElemAt: ["$articles", { $floor: { $multiply: [{ $rand: {} }, { $size: "$articles" }] } }] }
+        }
+      }
+    ]).exec();
 
     if (!randomArticles.length) {
       throw new NotFoundException('No articles found from yesterday in any category.');
@@ -205,7 +222,7 @@ export class ArticleService {
         const prompt = PROMPT_SUMMARIZE_TEMPLATE.replace("{content}", article.content);
         const speech = await openAiService.generateText(prompt); // GPT-3를 사용하여 대사 생성
         article.summary = speech; // 생성된 대사로 기사 요약 업데이트
-        await this.articleModel.findByIdAndUpdate(article._id, { summary: speech }, { new: true }).exec(); // DB에 업데이트
+        await this.articleModel.findByIdAndUpdate({_id: article.randomArticle._id}, { summary: speech }).exec(); // DB에 업데이트
       }
     }
 

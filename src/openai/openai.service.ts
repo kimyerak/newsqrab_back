@@ -1,35 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import axios from 'axios';
+import OpenAI from "openai";
 
 @Injectable()
 export class OpenAiService {
-  private readonly apiUrl: string = 'https://api.openai.com/v1/completions';
+  // private readonly apiUrl: string = 'https://api.openai.com/v1/completions';
 
   constructor(private readonly configService: ConfigService) {}
 
   async generateText(prompt: string): Promise<string> {
+    const openai = new OpenAI();
     try {
-      const apiKey = this.configService.get<string>('OPENAI_API_KEY');
-      const response = await axios.post(
-        this.apiUrl,
-        {
-          "model": 'text-davinci-002',
-          "prompt": prompt,
-          "max_tokens": 150,
-          "temperature": 0.7,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-          },
-        },
-      );
+      const completion = await openai.chat.completions.create({
+        messages: [
+          { role: "system", content: "You are a smart and helpful assistant." },
+          { role: "user", content: prompt},
+        ],
+        model: "gpt-4o",
+      });
 
-      return response.data.choices[0].text.trim();
-    } catch (error) {
-      console.error('OpenAI API Error:', error);
-      throw new Error('Failed to generate text from OpenAI');
+      console.log(completion.choices[0].message.content);
+      return completion.choices[0].message.content;
+
+    } catch (e) {
+      console.error('OpenAI API Error:', e);
     }
   }
 }
