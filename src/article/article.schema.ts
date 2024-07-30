@@ -10,19 +10,24 @@ export class Article extends Document {
   url: string;
 
   @Prop({ required: true })
-  content: string; // 기사 원문 전체
+  content: string; // 하이라이팅 가능한 본문
 
   @Prop({ required: true })
   author: string;
 
   @Prop()
-  summary?: string; // 3줄 요약
+  date: string; // 날짜
+
+  @Prop()
+  photo?: string; // 사진의 링크
 
   @Prop()
   category?: string; // 기사 카테고리 (예: 경제, 정치, 문화)
 
   @Prop()
-  picture?: string; // 대표 이미지 URL
+
+  summary?: string; // 1줄 요약
+
 
   @Prop({ default: Date.now })
   createdAt: Date;

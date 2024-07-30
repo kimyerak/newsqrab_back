@@ -31,6 +31,11 @@ export class ArticleService {
     return updatedArticle;
   }
 
+
+  async findAll(): Promise<Article[]> {
+    return this.articleModel.find().exec();
+  }
+
   async fetchArticleLinks(url: string): Promise<string[]> {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();

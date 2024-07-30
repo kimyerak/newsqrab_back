@@ -1,4 +1,4 @@
-import { Controller, Post, Put, Param, Body } from '@nestjs/common';
+import { Controller, Post, Put, Param, Body, Get } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
@@ -35,5 +35,16 @@ export class ArticleController {
     @Body() updateArticleDto: UpdateArticleDto,
   ): Promise<Article> {
     return this.articleService.update(id, updateArticleDto);
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Get all articles' })
+  @ApiResponse({
+    status: 200,
+    description: 'An array of all articles',
+    type: [Article], // An array of Article objects
+  })
+  getAll(): Promise<Article[]> {
+    return this.articleService.findAll();
   }
 }

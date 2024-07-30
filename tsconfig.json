@@ -21,6 +21,8 @@
     "noFallthroughCasesInSwitch": false
   },
   "exclude": [
+    "node_modules",
+    "dist",
     "node_modules/@types/bonjour",
     "node_modules/@types/connect-history-api-fallback",
     "node_modules/@types/html-minifier-terser"
