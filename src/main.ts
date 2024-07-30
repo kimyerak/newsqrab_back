@@ -26,11 +26,11 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document); // Swagger 문서 URL을 '/api'로 설정
   await app.listen(3000);
   cron.schedule(
-    '0 * * * *',
+    '* * * * *',
     async () => {
       console.log('Running a task every midnight');
-      const news = await articleService.fetchNews();
-      console.log(news);
+      // await articleService.fetchNews();
+      articleService.findReelsArticle();
     },
     {
       scheduled: true,

@@ -33,6 +33,7 @@
     "bcrypt": "^5.1.1",
     "cheerio": "^1.0.0-rc.12",
     "class-validator": "^0.14.1",
+    "moment": "^2.30.1",
     "mongoose": "^8.5.1",
     "node-cron": "^3.0.3",
     "puppeteer": "^22.14.0",

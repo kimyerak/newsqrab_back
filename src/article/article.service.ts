@@ -4,7 +4,11 @@ import { Model } from 'mongoose';
 import { Article } from './article.schema';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
+import { OpenAiService } from '../openai/openai.service';
+import { ConfigService } from '@nestjs/config';
+import { PROMPT_SUMMARIZE_TEMPLATE } from '../openai/prompts/prompt_article';
 
+import * as moment from 'moment';
 import puppeteer from 'puppeteer';
 
 @Injectable()
@@ -172,6 +176,55 @@ export class ArticleService {
 
     // return headlines;
   }
+
+  async findReelsArticle(): Promise<void> {
+    const yesterdayStart = moment().subtract(1, 'days').startOf('day').toDate();
+    const todayStart = moment().startOf('day').toDate();
+
+    const randomArticles = await this.articleModel.aggregate([
+      // { $match: { createdAt: { $gte: yesterdayStart, $lt: todayStart } } }, // 어제에 해당하는 기사 필터링
+      {
+        $group: {
+          _id: "$category",
+          articles: { $push: "$$ROOT" }
+        }
+      },
+      { $sample: { size: 1 } },  // 랜덤하게 한 카테고리 선택
+      { $unwind: "$articles" },  // articles 배열 해체
+      { $sample: { size: 1 } },  // 선택된 카테고리의 기사 중 하나 랜덤 선택
+      { $replaceRoot: { newRoot: "$articles" } }  // 최상위 문서로 이동
+    ]);
+
+    if (!randomArticles.length) {
+      throw new NotFoundException('No articles found from yesterday in any category.');
+    } else {
+      // GPT에게 대사 만들어달라고 하기
+      // randomArticle의 sumamry를 GPT로 생성한 대사로 업데이트
+      const openAiService = new OpenAiService(new ConfigService()); // OpenAiService 인스턴스화
+      for (const article of randomArticles) {
+        const prompt = PROMPT_SUMMARIZE_TEMPLATE.replace("{content}", article.content);
+        const speech = await openAiService.generateText(prompt); // GPT-3를 사용하여 대사 생성
+        article.summary = speech; // 생성된 대사로 기사 요약 업데이트
+        await this.articleModel.findByIdAndUpdate(article._id, { summary: speech }, { new: true }).exec(); // DB에 업데이트
+      }
+    }
+
+    // return randomArticles;
+  }
+
+  async updateArticleSummary(articleId: string, summary: string): Promise<Article> {
+    const updatedArticle = await this.articleModel.findByIdAndUpdate(
+      articleId,
+      { $set: { summary } },
+      { new: true }
+    ).exec();
+
+    if (!updatedArticle) {
+      throw new NotFoundException(`Article with ID ${articleId} not found`);
+    }
+    return updatedArticle;
+  }
+
 
   // 필요한 다른 메서드들 (find, remove 등) 추가 가능
 }

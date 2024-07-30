@@ -11,14 +11,13 @@ export class OpenAiService {
   async generateText(prompt: string): Promise<string> {
     try {
       const apiKey = this.configService.get<string>('OPENAI_API_KEY');
-
       const response = await axios.post(
         this.apiUrl,
         {
-          model: 'text-davinci-003',
-          prompt: prompt,
-          max_tokens: 150,
-          temperature: 0.7,
+          "model": 'text-davinci-002',
+          "prompt": prompt,
+          "max_tokens": 150,
+          "temperature": 0.7,
         },
         {
           headers: {
