@@ -29,6 +29,20 @@ export class ReelsService {
     }
     return updatedReels;
   }
+  async findByDate(date: string): Promise<Reels[]> {
+    // Assuming the 'createdAt' field exists and is in ISO format
+    const start = new Date(date);
+    start.setUTCHours(0, 0, 0, 0);
+    const end = new Date(date);
+    end.setUTCHours(23, 59, 59, 999);
 
-  // 추가적인 서비스 메서드들 (find, delete 등) 필요 시 구현
+    return this.reelsModel
+      .find({
+        createdAt: {
+          $gte: start,
+          $lte: end,
+        },
+      })
+      .exec();
+  }
 }

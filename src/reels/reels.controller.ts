@@ -1,4 +1,4 @@
-import { Controller, Post, Put, Param, Body } from '@nestjs/common';
+import { Controller, Post, Put, Param, Body, Get } from '@nestjs/common';
 import { ReelsService } from './reels.service';
 import { CreateReelsDto } from './dto/create-reels.dto';
 import { UpdateReelsDto } from './dto/update-reels.dto';
@@ -34,5 +34,20 @@ export class ReelsController {
     @Body() updateReelsDto: UpdateReelsDto,
   ): Promise<Reels> {
     return this.reelsService.update(id, updateReelsDto);
+  }
+
+  @Get(':date')
+  @ApiOperation({ summary: 'Get reels by date' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of reels for the specified date.',
+    type: [Reels],
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'No reels found for the specified date.',
+  })
+  getByDate(@Param('date') date: string): Promise<Reels[]> {
+    return this.reelsService.findByDate(date);
   }
 }

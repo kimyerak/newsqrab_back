@@ -7,7 +7,7 @@ import { ArticleModule } from './article/article.module';
 import { ReelsModule } from './reels/reels.module';
 import { SecretService } from '../config.service';
 import { ConfigModule } from '@nestjs/config';
-
+import { ScrapModule } from './scrap/scrap.module';
 import { OpenAiService } from './openai/openai.service';
 import { ScheduleModule } from '@nestjs/schedule';
 
@@ -20,6 +20,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     UserModule,
     ArticleModule,
     ReelsModule,
+    ScrapModule,
     ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
