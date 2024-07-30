@@ -7,6 +7,8 @@ import { ArticleModule } from './article/article.module';
 import { ReelsModule } from './reels/reels.module';
 import { SecretService } from '../config.service';
 import { ConfigModule } from '@nestjs/config';
+import { ArticleService } from './article/article.service';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -17,6 +19,7 @@ import { ConfigModule } from '@nestjs/config';
     UserModule,
     ArticleModule,
     ReelsModule,
+    ScheduleModule.forRoot()
   ],
   controllers: [AppController],
   providers: [AppService, SecretService],
