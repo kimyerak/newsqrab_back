@@ -63,6 +63,7 @@ export class ReelsService {
 
   async createAudioFromText(summary: string, reelsId: Types.ObjectId[]): Promise<string> {
     const clovaspeech_url = 'https://naveropenapi.apigw.ntruss.com/tts-premium/v1/tts';
+    console.log(summary);
     const options = {
       method: 'post',
       url: clovaspeech_url,
@@ -91,6 +92,5 @@ export class ReelsService {
       console.error('Error fetching TTS:', error);
       throw error;
     }
-    
   }
 }
