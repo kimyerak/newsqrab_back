@@ -9,6 +9,9 @@ export class Reels extends Document {
   @Prop({ type: [Types.ObjectId], ref: 'Article', required: true })
   articleId: Types.ObjectId[]; // 릴스에 사용된 기사 id들
 
+  @Prop()
+  date: string; // 날짜
+
   @Prop({ required: true })
   speak: string; // 아바타가 말할 대사
 

@@ -21,6 +21,11 @@ export class CreateReelsDto {
   @IsNotEmpty()
   speak: string;
 
+  @ApiProperty({ description: '릴스 공개 날짜' })
+  @IsString()
+  @IsNotEmpty()
+  date: string;
+
   @ApiProperty({ description: 'URL to the video stored in AWS S3' })
   @IsString()
   @IsNotEmpty()

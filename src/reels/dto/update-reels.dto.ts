@@ -19,6 +19,11 @@ export class UpdateReelsDto {
     description: 'The updated speech that the avatar will say',
     required: false,
   })
+  @ApiProperty({ description: '릴스 공개 날짜' })
+  @IsString()
+  @IsOptional()
+  date?: string;
+
   @IsString()
   @IsOptional()
   speak?: string;
