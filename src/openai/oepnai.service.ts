@@ -1,13 +1,17 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 
 @Injectable()
 export class OpenAiService {
-  private readonly apiKey: string = '';
   private readonly apiUrl: string = 'https://api.openai.com/v1/completions';
+
+  constructor(private readonly configService: ConfigService) {}
 
   async generateText(prompt: string): Promise<string> {
     try {
+      const apiKey = this.configService.get<string>('OPENAI_API_KEY');
+
       const response = await axios.post(
         this.apiUrl,
         {
@@ -18,7 +22,7 @@ export class OpenAiService {
         },
         {
           headers: {
-            Authorization: `Bearer ${this.apiKey}`,
+            Authorization: `Bearer ${apiKey}`,
           },
         },
       );
