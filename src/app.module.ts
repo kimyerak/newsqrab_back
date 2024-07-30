@@ -7,7 +7,8 @@ import { ArticleModule } from './article/article.module';
 import { ReelsModule } from './reels/reels.module';
 import { SecretService } from '../config.service';
 import { ConfigModule } from '@nestjs/config';
-import { ArticleService } from './article/article.service';
+
+import { OpenAiService } from './openai/oepnai.service';
 import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
@@ -19,9 +20,9 @@ import { ScheduleModule } from '@nestjs/schedule';
     UserModule,
     ArticleModule,
     ReelsModule,
-    ScheduleModule.forRoot()
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
-  providers: [AppService, SecretService],
+  providers: [AppService, SecretService, OpenAiService],
 })
 export class AppModule {}
