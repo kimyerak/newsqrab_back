@@ -25,9 +25,7 @@ export class Article extends Document {
   category?: string; // 기사 카테고리 (예: 경제, 정치, 문화)
 
   @Prop()
-
   summary?: string; // 1줄 요약
-
 
   @Prop({ default: Date.now })
   createdAt: Date;
