@@ -9,6 +9,8 @@ import {
   Param,
   Get,
   Delete,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
@@ -19,7 +21,7 @@ import {
   UpdateUserActivityDto,
 } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
-
+import { FileInterceptor } from '@nestjs/platform-express';
 @ApiTags('users') // 태그 지정
 @Controller('users')
 export class UserController {
@@ -82,6 +84,7 @@ export class UserController {
   }
 
   @Put(':id/profile')
+  @UseInterceptors(FileInterceptor('profilePicture'))
   @ApiOperation({ summary: 'Update user profile information' })
   @ApiResponse({
     status: 200,
@@ -92,18 +95,14 @@ export class UserController {
   async updateUserProfile(
     @Param('id') id: string,
     @Body() updateUserProfileDto: UpdateUserProfileDto,
+    @UploadedFile() profilePicture: Express.Multer.File,
   ): Promise<any> {
     const updatedUser = await this.userService.updateUserProfile(
       id,
       updateUserProfileDto,
+      profilePicture, // 프로필 사진 파일 전달
     );
-    return {
-      _id: updatedUser._id.toString(),
-      username: updatedUser.username,
-      nickname: updatedUser.nickname,
-      profilePicture: updatedUser.profilePicture,
-      bio: updatedUser.bio,
-    };
+    return updatedUser;
   }
 
   @Put(':id/activity')
