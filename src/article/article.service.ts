@@ -82,7 +82,6 @@ export class ArticleService {
     await page.goto(entertainmentUrl, { waitUntil: 'networkidle0' });
     const entertainmentArticleLinks = await page.$$eval('.rank_lst a', el => el.map(a => a.href));
     for (const articleLink of entertainmentArticleLinks) {
-      console.log(articleLink);
       await page.goto(articleLink, { waitUntil: 'networkidle0' });
       const title = await page.$eval('.NewsEndMain_article_title__kqEzS', el => el.textContent.trim());
       const author = await page.$eval('.article_head_info em', el => el.textContent.trim());
@@ -90,7 +89,6 @@ export class ArticleService {
       const imageElement = await page.$('.end_photo_org img');
       const picture = imageElement ? await page.evaluate(img => img.src, imageElement) : null;
       const date = await page.$eval('.date', el => el.textContent.trim());
-      console.log(articleLink, title, author, content, picture, date);
       headlines.push({
         category: 'Entertainment',
         title,
@@ -106,7 +104,6 @@ export class ArticleService {
     await page.goto(sportsUrl, { waitUntil: 'networkidle0' });
     const sportsArticleLinks = await page.$$eval('.today_list > li > a', el => el.map(a => a.href));
     for (const articleLink of sportsArticleLinks) {
-      console.log(articleLink);
       await page.goto(articleLink, { waitUntil: 'networkidle0' });
       const title = await page.$eval('.NewsEndMain_article_title__kqEzS', el => el.textContent.trim());
       const author = await page.$eval('.NewsEndMain_article_journalist_info__Cdr3D', el => el.textContent.trim());
@@ -114,7 +111,6 @@ export class ArticleService {
       const imageElement = await page.$('.end_photo_org img');
       const picture = imageElement ? await page.evaluate(img => img.src, imageElement) : null;
       const date = await page.$eval('.article_head_info em', el => el?.textContent.trim());
-      console.log(articleLink, title, author, content, picture, date);
       headlines.push({
         category: 'Sports',
         title,
@@ -139,7 +135,6 @@ export class ArticleService {
       const articleLinks = await this.fetchArticleLinks(newsUrls[category]);
       for (const articleLink of articleLinks) { 
         const articleDetails = await this.fetchArticleDetails(articleLink);
-        console.log(articleDetails);
         headlines.push({
           category,
           ...articleDetails,
