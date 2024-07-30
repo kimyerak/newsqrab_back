@@ -8,7 +8,7 @@ import { ReelsModule } from './reels/reels.module';
 import { SecretService } from '../config.service';
 import { ConfigModule } from '@nestjs/config';
 
-import { OpenAiService } from './openai/oepnai.service';
+import { OpenAiService } from './openai/openai.service';
 import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
@@ -16,7 +16,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     ConfigModule.forRoot({
       isGlobal: true, // 전역으로 사용
     }),
-    MongooseModule.forRoot('mongodb://localhost:27017/newsqrab'), // MongoDB 연결 URI
+    MongooseModule.forRoot('mongodb://127.0.0.1:27017/newsqrab'), // MongoDB 연결 URI
     UserModule,
     ArticleModule,
     ReelsModule,

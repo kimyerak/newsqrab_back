@@ -11,7 +11,7 @@ import puppeteer from 'puppeteer';
 export class ArticleService {
   constructor(
     @InjectModel(Article.name) private articleModel: Model<Article>,
-  ) {}
+  ) { }
 
   async create(createArticleDto: CreateArticleDto): Promise<Article> {
     const newArticle = new this.articleModel(createArticleDto);
@@ -54,13 +54,7 @@ export class ArticleService {
     return uniqueLinks;
   }
 
-  async fetchArticleDetails(articleUrl: string): Promise<{
-    title: string;
-    author: string;
-    content: string;
-    picture: string;
-    date: string;
-  }> {
+  async fetchArticleDetails(articleUrl: string, articleCategory: string,): Promise<void> {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.goto(articleUrl, {
@@ -83,19 +77,26 @@ export class ArticleService {
     const content = await page.$eval('#newsct_article', (el) =>
       el.textContent.trim(),
     );
-    const picture = await page.$eval('.end_photo_org img', (el) => el?.src);
+    const photo = await page.$eval('.end_photo_org img', (el) => el?.src);
     const date = await page.$eval('.media_end_head_info_datestamp_time', (el) =>
       el.textContent.trim(),
     );
+    const articleDto = new CreateArticleDto();
+    articleDto.title = title;
+    articleDto.url = articleUrl;
+    articleDto.content = content;
+    articleDto.author = author;
+    articleDto.date = date;
+    articleDto.photo = photo;
+    articleDto.category = articleCategory;
+    await this.create(articleDto);
 
     await browser.close();
 
-    return { title, author, content, picture, date };
+    // return { title, author, content, photo, date };
   }
 
-  async fetchNews(): Promise<any[]> {
-    const headlines = [];
-
+  async fetchNews(): Promise<void> {
     const entertainmentUrl = 'https://entertain.naver.com/now';
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
@@ -116,17 +117,17 @@ export class ArticleService {
         el.textContent.trim(),
       );
       const imageElement = await page.$('.end_photo_org img');
-      const picture = imageElement ? await page.evaluate(img => img.src, imageElement) : null;
+      const photo = imageElement ? await page.evaluate(img => img.src, imageElement) : null;
       const date = await page.$eval('.date', el => el.textContent.trim());
-      headlines.push({
-        category: 'Entertainment',
-        title,
-        author,
-        content,
-        picture,
-        date,
-        link: articleLink,
-      });
+      const articleDto = new CreateArticleDto();
+      articleDto.title = title;
+      articleDto.url = articleLink;
+      articleDto.content = content;
+      articleDto.author = author;
+      articleDto.date = date;
+      articleDto.photo = photo;
+      articleDto.category = 'Entertainment';
+      await this.create(articleDto);
     }
 
     const sportsUrl = 'https://sports.news.naver.com/index';
@@ -140,17 +141,17 @@ export class ArticleService {
       const author = await page.$eval('.NewsEndMain_article_journalist_info__Cdr3D', el => el.textContent.trim());
       const content = await page.$eval('._article_content', el => el.textContent.trim());
       const imageElement = await page.$('.end_photo_org img');
-      const picture = imageElement ? await page.evaluate(img => img.src, imageElement) : null;
+      const photo = imageElement ? await page.evaluate(img => img.src, imageElement) : null;
       const date = await page.$eval('.article_head_info em', el => el?.textContent.trim());
-      headlines.push({
-        category: 'Sports',
-        title,
-        author,
-        content,
-        picture,
-        date,
-        link: articleLink,
-      });
+      const articleDto = new CreateArticleDto();
+      articleDto.title = title;
+      articleDto.url = articleLink;
+      articleDto.content = content;
+      articleDto.author = author;
+      articleDto.date = date;
+      articleDto.photo = photo;
+      articleDto.category = 'Sports';
+      await this.create(articleDto);
     }
 
     const newsUrls = {
@@ -165,16 +166,11 @@ export class ArticleService {
       // 연예, 스포츠외 다른 카테고리 기사 크롤링
       const articleLinks = await this.fetchArticleLinks(newsUrls[category]);
       for (const articleLink of articleLinks) {
-        const articleDetails = await this.fetchArticleDetails(articleLink);
-        headlines.push({
-          category,
-          ...articleDetails,
-          link: articleLink,
-        });
+        await this.fetchArticleDetails(articleLink, category);
       }
     }
 
-    return headlines;
+    // return headlines;
   }
 
   // 필요한 다른 메서드들 (find, remove 등) 추가 가능
