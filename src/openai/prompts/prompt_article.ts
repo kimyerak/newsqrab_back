@@ -1,9 +1,8 @@
 export const PROMPT_SUMMARIZE_TEMPLATE = `
-Given the following article content, 
-please provide a 3-sentence summary 
-and categorize the article into 
-one of the following categories: 
-
-Economics, Politics, Culture, Social, Sports, Entertainment, Science. 
+Given the following article content,
+please provide a conversational script
+that an avatar could say in a video. 
+The explanation should be easy to understand 
+and last about 20-30 seconds:
 
 Content: {content}`;

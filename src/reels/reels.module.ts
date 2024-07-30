@@ -4,7 +4,7 @@ import { Reels, ReelsSchema } from './reels.schema';
 import { ReelsService } from './reels.service';
 import { ReelsController } from './reels.controller';
 import { Article, ArticleSchema } from '../article/article.schema';
-import { OpenAiService } from '../openai/oepnai.service';
+import { OpenAiService } from '../openai/openai.service';
 
 @Module({
   imports: [
