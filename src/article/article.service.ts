@@ -184,7 +184,7 @@ export class ArticleService {
     }
 
     const newsUrls = {
-      Politics: 'https://news.naver.com/section/100',
+      // Politics: 'https://news.naver.com/section/100',
       Economy: 'https://news.naver.com/section/101',
       Society: 'https://news.naver.com/section/102',
       Culture: 'https://news.naver.com/section/103',
@@ -207,11 +207,11 @@ export class ArticleService {
     const todayStart = moment().startOf('day').toDate();
 
     const randomArticles = await this.articleModel.aggregate([
-      // {
-      //   $match: {
-      //     createdAt: { $gte: yesterdayStart, $lt: todayStart }
-      //   }
-      // },
+      {
+        $match: {
+          createdAt: { $gte: yesterdayStart, $lt: todayStart }
+        }
+      },
       {
         $group: {
           _id: "$category",
