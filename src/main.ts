@@ -4,10 +4,12 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cron from 'node-cron';
 
 import { ArticleService } from './article/article.service';
+import { ReelsService } from './reels/reels.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const articleService = app.get(ArticleService);
+  const reelsService = app.get(ReelsService);
 
   // CORS 설정 추가
   app.enableCors({
@@ -31,6 +33,8 @@ async function bootstrap() {
       console.log('Running a task every midnight');
       // await articleService.fetchNews();
       articleService.findReelsArticle();
+      
+
   //   },
   //   {
   //     scheduled: true,

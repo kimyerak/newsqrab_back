@@ -6,6 +6,7 @@ import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { OpenAiService } from '../openai/openai.service';
 import { ConfigService } from '@nestjs/config';
+import { ReelsService } from '../reels/reels.service';
 import { PROMPT_SUMMARIZE_TEMPLATE } from '../openai/prompts/prompt_article';
 
 import * as moment from 'moment';
@@ -15,6 +16,7 @@ import puppeteer from 'puppeteer';
 export class ArticleService {
   constructor(
     @InjectModel(Article.name) private articleModel: Model<Article>,
+    private reelsService: ReelsService,
   ) {}
 
   async create(createArticleDto: CreateArticleDto): Promise<Article> {
@@ -234,6 +236,8 @@ export class ArticleService {
         const speech = await openAiService.generateText(prompt); // GPT-3를 사용하여 대사 생성
         article.summary = speech; // 생성된 대사로 기사 요약 업데이트
         await this.articleModel.findByIdAndUpdate({_id: article.randomArticle._id}, { summary: speech }).exec(); // DB에 업데이트
+        const videoUrl = 'S3_video_url_here'; // AWS S3에 저장된 비디오 URL;
+        await this.reelsService.createReelFromArticle(article.randomArticle, videoUrl);
       }
     }
 

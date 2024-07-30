@@ -13,5 +13,6 @@ import { OpenAiService } from '../openai/openai.service';
   ],
   controllers: [ReelsController],
   providers: [ReelsService, OpenAiService],
+  exports: [ReelsService],
 })
 export class ReelsModule {}
