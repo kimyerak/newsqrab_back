@@ -19,13 +19,15 @@ export class Article extends Document {
   date: string; // 날짜
 
   @Prop()
-  photo: string; // 사진의 링크
+  photo?: string; // 사진의 링크
 
   @Prop()
   category?: string; // 기사 카테고리 (예: 경제, 정치, 문화)
 
   @Prop()
+
   summary?: string; // 1줄 요약
+
 
   @Prop({ default: Date.now })
   createdAt: Date;
