@@ -230,7 +230,7 @@ export class ArticleService {
       // randomArticle의 sumamry를 GPT로 생성한 대사로 업데이트
       const openAiService = new OpenAiService(new ConfigService()); // OpenAiService 인스턴스화
       for (const article of randomArticles) {
-        const prompt = PROMPT_SUMMARIZE_TEMPLATE.replace("{content}", article.content);
+        const prompt = PROMPT_SUMMARIZE_TEMPLATE.replace("{content}", article.randomArticle.content);
         const speech = await openAiService.generateText(prompt); // GPT-3를 사용하여 대사 생성
         article.summary = speech; // 생성된 대사로 기사 요약 업데이트
         await this.articleModel.findByIdAndUpdate({_id: article.randomArticle._id}, { summary: speech }).exec(); // DB에 업데이트

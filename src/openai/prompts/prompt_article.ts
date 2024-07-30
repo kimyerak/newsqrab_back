@@ -8,5 +8,6 @@ The important points are as follows:
 - must be easy to understand
 - must be 4~5 sentences long
 - Please include only the dialogue and not your responses like 'Of course.'
+- Please start with "안녕하세요, 여러분", and end with "감사합니다."
 
 Content: {content}`;
