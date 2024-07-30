@@ -29,5 +29,7 @@ export class ArticleService {
     return updatedArticle;
   }
 
-  // 필요한 다른 메서드들 (find, remove 등) 추가 가능
+  async findAll(): Promise<Article[]> {
+    return this.articleModel.find().exec();
+  }
 }
