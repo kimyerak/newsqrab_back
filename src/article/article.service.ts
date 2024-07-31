@@ -58,7 +58,9 @@ export class ArticleService {
   }
 
   async fetchArticleLinks(url: string): Promise<string[]> {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: 'networkidle0' });
     const uniqueLinks = await page.$$eval(
@@ -80,7 +82,9 @@ export class ArticleService {
     articleUrl: string,
     articleCategory: string,
   ): Promise<void> {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
     const page = await browser.newPage();
     console.log(articleUrl);
     await page.goto(articleUrl, {
@@ -130,7 +134,9 @@ export class ArticleService {
     console.log('Fetching news...');
     const entertainmentUrl = 'https://entertain.naver.com/now';
     console.log("here1");
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch(
+      {args: ['--no-sandbox', '--disable-setuid-sandbox']}
+    );
     console.log("here2");
     const page = await browser.newPage();
     console.log("here3");

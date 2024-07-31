@@ -31,6 +31,6 @@ async function bootstrap() {
   console.log('Running a task every midnight');
   await articleService.fetchNews();
   articleService.findReelsArticle();
-  await app.listen(3000);
+
 }
 bootstrap();
