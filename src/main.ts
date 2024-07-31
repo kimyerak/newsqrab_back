@@ -30,10 +30,9 @@ async function bootstrap() {
   // cron.schedule(
   //   '* * * * *',
   //   async () => {
-      console.log('Running a task every midnight');
-      // await articleService.fetchNews();
-      // articleService.findReelsArticle();
-      
+  console.log('Running a task every midnight');
+  // await articleService.fetchNews();
+  articleService.findReelsArticle();
 
   //   },
   //   {

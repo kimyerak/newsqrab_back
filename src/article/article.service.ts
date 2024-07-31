@@ -266,9 +266,7 @@ export class ArticleService {
             { summary: speech },
           )
           .exec(); // DB에 업데이트
-        await this.reelsService.createReelFromArticle(
-          article.randomArticle,
-        );
+        await this.reelsService.createReelFromArticle(article.randomArticle);
       }
     }
 

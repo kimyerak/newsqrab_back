@@ -30,7 +30,7 @@ export class ScrapController {
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new scrap' })
+  @ApiOperation({ summary: '탭1,2,3,4 - Create a new scrap' })
   @ApiResponse({
     status: 201,
     description: 'The scrap has been successfully created.',
@@ -41,9 +41,18 @@ export class ScrapController {
   async createScrap(@Body() scrapData: Scrap): Promise<Scrap> {
     return this.scrapService.createScrap(scrapData);
   }
-
+  @Get('hot')
+  @ApiOperation({ summary: '탭4 - Get hot scraps' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of hot scraps sorted by the number of follower emojis.',
+    type: [CreateScrapDto],
+  })
+  async getHotScraps(): Promise<Scrap[]> {
+    return this.scrapService.getHotScraps();
+  }
   @Get()
-  @ApiOperation({ summary: 'Get all scraps' })
+  @ApiOperation({ summary: '안쓰일듯 - Get all scraps' })
   @ApiResponse({
     status: 200,
     description: 'List of all scraps.',
@@ -54,7 +63,7 @@ export class ScrapController {
   }
 
   @Put(':id/followerEmojis')
-  @ApiOperation({ summary: 'Update follower emojis for a scrap' })
+  @ApiOperation({ summary: '탭1,2 - Update follower emojis for a scrap' })
   @ApiResponse({
     status: 200,
     description: 'Follower emoji has been successfully added or updated.',
@@ -77,7 +86,7 @@ export class ScrapController {
   }
 
   @Get(':usernickname')
-  @ApiOperation({ summary: 'Get scraps by user nickname' })
+  @ApiOperation({ summary: '누군가의 프로필 클릭시 - Get scraps by nickname' })
   @ApiResponse({
     status: 200,
     description: 'List of scraps for the specified user nickname.',
@@ -90,7 +99,7 @@ export class ScrapController {
   }
 
   @Get('following/:userId')
-  @ApiOperation({ summary: 'Get scraps from users you are following' })
+  @ApiOperation({ summary: '탭1- Get scraps from users you are following' })
   @ApiResponse({
     status: 200,
     description:
