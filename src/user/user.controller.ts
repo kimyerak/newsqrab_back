@@ -11,6 +11,7 @@ import {
   Delete,
   UseInterceptors,
   UploadedFile,
+  Patch,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
@@ -25,8 +26,8 @@ export class UserController {
   private readonly logger = new Logger(UserController.name);
   constructor(private readonly userService: UserService) {}
 
-  @Post('register')
-  @ApiOperation({ summary: 'Create user - 회원가입' })
+  @Patch('register')
+  @ApiOperation({ summary: '탭0 - 회원가입' })
   @ApiResponse({
     status: 201,
     description: 'User created successfully.',
@@ -54,7 +55,7 @@ export class UserController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Login user' })
+  @ApiOperation({ summary: '탭0 - 로그인' })
   @ApiResponse({
     status: 201,
     description: 'User logged in successfully.',
@@ -82,9 +83,9 @@ export class UserController {
     }
   }
 
-  @Put(':id/profile')
+  @Patch(':id/profile')
   @UseInterceptors(FileInterceptor('profilePicture'))
-  @ApiOperation({ summary: 'Update user profile information' })
+  @ApiOperation({ summary: '탭5 - 마이페이지(username, nickname, bio)수정' })
   @ApiResponse({
     status: 200,
     description: 'The user profile has been successfully updated.',
