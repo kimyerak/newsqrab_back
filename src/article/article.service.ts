@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Article } from './article.schema';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
@@ -37,11 +37,24 @@ export class ArticleService {
     return updatedArticle;
   }
 
+  //간단 함수 3총사
   async findAll(): Promise<Article[]> {
     return this.articleModel.find().exec();
   }
   async findByCategory(category: string): Promise<Article[]> {
     return this.articleModel.find({ category }).exec();
+  }
+  async findById(id: string): Promise<Article> {
+    console.log(id);
+    if (!Types.ObjectId.isValid(id)) {
+      throw new NotFoundException('Invalid ID format');
+    }
+    const article = await this.articleModel.findById(id).exec();
+    if (!article) {
+      throw new NotFoundException('Article not found');
+    }
+    console.log(article);
+    return article;
   }
 
   async fetchArticleLinks(url: string): Promise<string[]> {

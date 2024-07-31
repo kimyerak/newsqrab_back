@@ -2,6 +2,25 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 
 @Schema()
+export class Comment {
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  userId: Types.ObjectId;
+
+  @Prop({ required: true })
+  nickname: string;
+
+  @Prop()
+  profilePicture?: string;
+
+  @Prop({ required: true })
+  content: string;
+
+  @Prop({ default: 0 })
+  likes: number;
+}
+
+const CommentSchema = SchemaFactory.createForClass(Comment);
+@Schema()
 export class Reels extends Document {
   @Prop({ required: true })
   owner: string; // 자체 릴스 혹은 신문사
@@ -21,25 +40,8 @@ export class Reels extends Document {
   @Prop({ required: true })
   category: string; // 아바타 (카테고리에 따라 다름)
 
-  @Prop({
-    type: [
-      {
-        userId: { type: Types.ObjectId, ref: 'User' },
-        nickname: { type: String, required: true },
-        profilePicture: { type: String }, // 프로필 사진 URL
-        content: { type: String, required: true },
-        likes: { type: Number, default: 0 }, // 좋아요 수
-      },
-    ],
-    default: [],
-  })
-  comments: {
-    userId: Types.ObjectId;
-    nickname: string;
-    profilePicture: string;
-    content: string;
-    likes: number; // 좋아요 수
-  }[];
+  @Prop({ type: [CommentSchema], default: [] })
+  comments: Types.DocumentArray<Comment>;
 
   @Prop({ default: Date.now })
   createdAt: Date;
