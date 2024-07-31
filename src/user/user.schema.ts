@@ -27,6 +27,12 @@ export class User extends Document {
   @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Scrap' }] })
   scraps: MongooseSchema.Types.ObjectId[];
 
+  @Prop({ default: 0 })
+  follower_count: number;
+
+  @Prop({ default: 0 })
+  following_count: number;
+
   @Prop({ default: Date.now })
   createdAt: Date;
 

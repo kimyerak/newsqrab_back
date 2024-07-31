@@ -46,6 +46,12 @@ export class CreateUserDto {
   @IsOptional()
   followers?: Types.ObjectId[];
 
+  @ApiProperty({ description: 'The number of followers' })
+  follower_count: number;
+
+  @ApiProperty({ description: 'The number of users the user is following' })
+  following_count: number;
+
   @ApiProperty({
     type: [String],
     description: 'IDs of scraps',
@@ -76,6 +82,12 @@ export class CreateUserResponseDto {
     required: false,
   })
   bio?: string;
+
+  @ApiProperty({ description: 'The number of followers' })
+  follower_count: number;
+
+  @ApiProperty({ description: 'The number of users the user is following' })
+  following_count: number;
 
   @ApiProperty({ description: 'The date when the user was created' })
   createdAt: Date;

@@ -6,7 +6,7 @@ import {
   ConflictException, // ConflictException 추가
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model, Types, Schema } from 'mongoose';
 import { User } from './user.schema';
 import { LoginDto } from './dto/login.dto';
 import {
@@ -107,6 +107,22 @@ export class UserService {
       ),
       scraps: updateUserActivityDto.scraps?.map((id) => new Types.ObjectId(id)),
     };
+
+    // 기존 데이터 가져오기
+    const existingUser = await this.userModel.findById(id);
+    if (!existingUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    // 팔로워 및 팔로잉 수 업데이트
+    if (updateUserActivityDto.followers) {
+      updateData['follower_count'] = updateUserActivityDto.followers.length;
+    }
+
+    if (updateUserActivityDto.following) {
+      updateData['following_count'] = updateUserActivityDto.following.length;
+    }
+
     const updatedUser = await this.userModel
       .findByIdAndUpdate(id, updateData, { new: true })
       .exec();
@@ -127,5 +143,154 @@ export class UserService {
     if (result.deletedCount === 0) {
       throw new NotFoundException('User not found');
     }
+  }
+  async getFollowing(userId: string): Promise<User[]> {
+    const user = await this.userModel
+      .findById(userId)
+      .populate('following', '-password') // 'following' 필드에 대한 populate
+      .exec();
+
+    return user.following as unknown as User[]; // 안전한 타입 캐스팅
+  }
+
+  // Scrap 추가
+  async addScrap(userId: string, scrapId: string): Promise<void> {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const scrapObjectId = new Types.ObjectId(scrapId);
+
+    if (!user.scraps.some((id) => id.toString() === scrapObjectId.toString())) {
+      user.scraps.push(scrapObjectId as any);
+      await user.save();
+    }
+  }
+
+  // Scrap 제거
+  async deleteScrap(userId: string, scrapId: string): Promise<void> {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const scrapObjectId = new Types.ObjectId(scrapId);
+    user.scraps = user.scraps.filter(
+      (id) => id.toString() !== scrapObjectId.toString(),
+    );
+
+    await user.save();
+  }
+
+  // Following 추가
+  async addFollowing(userId: string, followUserId: string): Promise<void> {
+    const user = await this.userModel.findById(userId);
+    const followUser = await this.userModel.findById(followUserId);
+
+    if (!user || !followUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    // following 배열에 추가
+    if (
+      !user.following.some((id) => id.toString() === followUser._id.toString())
+    ) {
+      user.following.push(followUser._id as Schema.Types.ObjectId);
+      user.following_count += 1;
+      await user.save();
+    }
+
+    // followers 배열에 추가
+    if (
+      !followUser.followers.some((id) => id.toString() === user._id.toString())
+    ) {
+      followUser.followers.push(user._id as Schema.Types.ObjectId);
+      followUser.follower_count += 1;
+      await followUser.save();
+    }
+  }
+
+  // Following 제거
+  async deleteFollowing(userId: string, unfollowUserId: string): Promise<void> {
+    const user = await this.userModel.findById(userId);
+    const unfollowUser = await this.userModel.findById(unfollowUserId);
+
+    if (!user || !unfollowUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    // following 배열에서 제거
+    user.following = user.following.filter(
+      (id) => id.toString() !== unfollowUser._id.toString(),
+    );
+    user.following_count = user.following.length;
+    await user.save();
+
+    // followers 배열에서 제거
+    unfollowUser.followers = unfollowUser.followers.filter(
+      (id) => id.toString() !== user._id.toString(),
+    );
+    unfollowUser.follower_count = unfollowUser.followers.length;
+    await unfollowUser.save();
+  }
+
+  // Follower 추가
+  async addFollower(userId: string, followerUserId: string): Promise<void> {
+    const user = await this.userModel.findById(userId);
+    const followerUser = await this.userModel.findById(followerUserId);
+
+    if (!user || !followerUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    // followers 배열에 추가
+    if (
+      !user.followers.some(
+        (id) => id.toString() === followerUser._id.toString(),
+      )
+    ) {
+      user.followers.push(followerUser._id as Schema.Types.ObjectId);
+      user.follower_count += 1;
+      await user.save();
+    }
+
+    // following 배열에 추가
+    if (
+      !followerUser.following.some(
+        (id) => id.toString() === user._id.toString(),
+      )
+    ) {
+      followerUser.following.push(user._id as Schema.Types.ObjectId);
+      followerUser.following_count += 1;
+      await followerUser.save();
+    }
+  }
+
+  // Follower 제거
+  async deleteFollower(
+    userId: string,
+    unfollowerUserId: string,
+  ): Promise<void> {
+    const user = await this.userModel.findById(userId);
+    const unfollowerUser = await this.userModel.findById(unfollowerUserId);
+
+    if (!user || !unfollowerUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    // followers 배열에서 제거
+    user.followers = user.followers.filter(
+      (id) => id.toString() !== unfollowerUser._id.toString(),
+    );
+    user.follower_count = user.followers.length;
+    await user.save();
+
+    // following 배열에서 제거
+    unfollowerUser.following = unfollowerUser.following.filter(
+      (id) => id.toString() !== user._id.toString(),
+    );
+    unfollowerUser.following_count = unfollowerUser.following.length;
+    await unfollowerUser.save();
   }
 }
