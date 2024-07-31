@@ -47,4 +47,14 @@ export class ArticleController {
   getAll(): Promise<Article[]> {
     return this.articleService.findAll();
   }
+  @Get(':category')
+  @ApiOperation({ summary: 'Get articles by category' })
+  @ApiResponse({
+    status: 200,
+    description: 'An array of articles filtered by category',
+    type: [Article],
+  })
+  getByCategory(@Param('category') category: string): Promise<Article[]> {
+    return this.articleService.findByCategory(category);
+  }
 }

@@ -40,6 +40,9 @@ export class ArticleService {
   async findAll(): Promise<Article[]> {
     return this.articleModel.find().exec();
   }
+  async findByCategory(category: string): Promise<Article[]> {
+    return this.articleModel.find({ category }).exec();
+  }
 
   async fetchArticleLinks(url: string): Promise<string[]> {
     const browser = await puppeteer.launch();
