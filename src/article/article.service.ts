@@ -225,9 +225,9 @@ export class ArticleService {
     // }
 
     const newsUrls = {
-      Politics: 'https://news.naver.com/section/100',
-      Economy: 'https://news.naver.com/section/101',
-      Society: 'https://news.naver.com/section/102',
+      // Politics: 'https://news.naver.com/section/100',
+      // Economy: 'https://news.naver.com/section/101',
+      // Society: 'https://news.naver.com/section/102',
       Culture: 'https://news.naver.com/section/103',
       Science: 'https://news.naver.com/section/105',
       World: 'https://news.naver.com/section/104',
