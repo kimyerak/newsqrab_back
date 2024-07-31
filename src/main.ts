@@ -27,18 +27,18 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document); // Swagger 문서 URL을 '/api'로 설정
   await app.listen(3000);
-  // cron.schedule(
-  //   '* * * * *',
-  //   async () => {
-  console.log('Running a task every midnight');
-  // await articleService.fetchNews();
-  articleService.findReelsArticle();
+  cron.schedule(
+    '0 * * * *',
+    async () => {
+      console.log('Running a task every midnight');
+      await articleService.fetchNews();
+      articleService.findReelsArticle();
 
-  //   },
-  //   {
-  //     scheduled: true,
-  //     timezone: 'Asia/Seoul',
-  //   },
-  // );
+    },
+    {
+      scheduled: true,
+      timezone: 'Asia/Seoul',
+    },
+  );
 }
 bootstrap();
