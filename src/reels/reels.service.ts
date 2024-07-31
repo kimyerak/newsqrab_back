@@ -8,9 +8,13 @@ import { UpdateReelsDto } from './dto/update-reels.dto';
 import { Article } from '../article/article.schema';
 import { S3Service } from '../s3/s3.service';
 import { Readable } from 'stream';
+import { merge } from 'cheerio/lib/static';
 const fs = require('fs');
 const axios = require('axios');
+import * as path from 'path';
 const qs = require('qs');
+const ffmpeg = require('fluent-ffmpeg');
+const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 
 @Injectable()
 export class ReelsService {
@@ -58,8 +62,7 @@ export class ReelsService {
 
   async createReelFromArticle(
     article: Article,
-    videoUrl: string,
-  ): Promise<Reels> {
+  ): Promise<void> {
     // console.log('l', article.category);
     const createReelsDto = new CreateReelsDto();
     createReelsDto.owner = 'newsqrap';
@@ -67,11 +70,13 @@ export class ReelsService {
     createReelsDto.speak = await this.createAudioFromText(
       article.summary,
       createReelsDto.articleId,
-    );
-    createReelsDto.video = videoUrl;
+    ); // tts mp3 파일의 object storage url
     createReelsDto.category = article.category;
-
-    return this.create(createReelsDto);
+    const reelsPath = await this.mergeVideoAndAudio(article.category, createReelsDto.articleId);
+    const reelsUrl = await this.uploadFileToStorage(reelsPath);
+    createReelsDto.video = reelsUrl;
+    const newReels = new this.reelsModel(createReelsDto);
+    await newReels.save();
   }
 
   async createAudioFromText(
@@ -97,39 +102,80 @@ export class ReelsService {
         'X-NCP-APIGW-API-KEY': process.env.X_NCP_APIGW_API_KEY,
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      responseType: 'arraybuffer',
+      responseType: 'stream',
     };
-
     try {
       console.log('try문 들어옴#################');
       const response = await axios(options);
       console.log('axios반응 받음#################');
-      const buffer = Buffer.from(response.data);
-
-    // Mimic a Multer File
-    const fakeFile: Express.Multer.File = {
-      buffer: buffer,
-      originalname: `tts${reelsId}_${Date.now()}.mp3`,
-      mimetype: 'audio/mpeg',
-      fieldname: 'file',
-      encoding: '7bit',
-      size: buffer.length,
-      stream: new Readable({
-        read() {
-          this.push(buffer);
-          this.push(null); // Signal end of stream
-        }
-      }),
-      destination: '',
-      filename: '',
-      path: ''
-    };
-
-    return await this.s3Service.uploadFile('tts', fakeFile);
+      const filePath = `./assets/tts/${reelsId}.mp3`;
+      console.log('저장경로설정함#################');
+      const writer = fs.createWriteStream(filePath);
+      console.log('fs로 저장#################');
+      response.data.pipe(writer);
+      console.log('pipe 작동#################');
+      return new Promise((resolve, reject) => {
+        writer.on('finish', () => {
+          console.log('파일 쓰기 완료');
+          resolve(filePath);
+        });
+        writer.on('error', reject);
+      });
     } catch (error) {
       console.error('Error fetching TTS:', error);
       // throw error;
       return 'default-path.mp3';
     }
+  }
+
+  async mergeVideoAndAudio(category: string, reelsId: Types.ObjectId[]): Promise<string> {
+    ffmpeg.setFfmpegPath(ffmpegPath);
+    const videoInputPath = `./assets/video/${category}.mp4`;
+    const audioInputPath = `./assets/tts/${reelsId}.mp3`;
+    const outputPath = `./assets/reels/${reelsId}.mp4`;
+
+    return new Promise((resolve, reject) => {
+      ffmpeg(videoInputPath)
+        .input(audioInputPath)
+        .outputOptions([
+          '-map 0:v', // 비디오 파일의 비디오 스트림을 선택
+          '-map 1:a', // 오디오 파일의 오디오 스트림을 선택
+          '-c:v copy', // 비디오 코덱은 복사 (재인코딩 없음)
+          '-c:a aac', // 오디오 코덱은 AAC로 설정
+          '-strict experimental', // 일부 코덱에 필요한 경우
+          '-shortest'
+        ])
+        .on('error', function (err) {
+          console.log('An error occurred: ' + err.message);
+          reject(err);
+        })
+        .on('end', function () {
+          console.log('Merging finished !');
+          resolve(outputPath);
+        })
+        .save(outputPath);
+    });
+  }
+
+  async uploadFileToStorage(filePath: string): Promise<string> {
+    const fileBuffer = fs.readFileSync(filePath);
+    // const fileExt = ffmpeg.extname(filePath);
+    const mimeType = 'video/mp4'; // Set MIME type for video
+    const fakeFile: Express.Multer.File = {
+      buffer: fileBuffer,
+      originalname: path.basename(filePath),
+      mimetype: mimeType,
+      // Additional properties needed by the upload function
+      fieldname: 'file', // Typically the name of the form field (used in Multer)
+      encoding: '7bit', // Common encoding for files
+      size: fileBuffer.length,
+      destination: '', // Optional: the folder to which the file has been saved
+      filename: path.basename(filePath), // The name of the file within the destination
+      path: filePath, // The full path to the uploaded file
+      stream: fs.createReadStream(filePath) // A readable stream of the file
+    };
+    
+    // Assuming `uploadFile` is properly configured to take an object similar to `Express.Multer.File`
+    return this.s3Service.uploadFile('reels', fakeFile);
   }
 }
