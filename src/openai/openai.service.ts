@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import OpenAI from "openai";
+import OpenAI from 'openai';
 
 @Injectable()
 export class OpenAiService {
@@ -13,15 +13,14 @@ export class OpenAiService {
     try {
       const completion = await openai.chat.completions.create({
         messages: [
-          { role: "system", content: "You are a smart and helpful assistant." },
-          { role: "user", content: prompt},
+          { role: 'system', content: 'You are a smart and helpful assistant.' },
+          { role: 'user', content: prompt },
         ],
-        model: "gpt-4o",
+        model: 'gpt-4o',
       });
 
-      console.log(completion.choices[0].message.content);
+      // console.log(completion.choices[0].message.content);
       return completion.choices[0].message.content;
-
     } catch (e) {
       console.error('OpenAI API Error:', e);
     }
