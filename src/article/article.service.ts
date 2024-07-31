@@ -107,7 +107,11 @@ export class ArticleService {
     const content = await page.$eval('#newsct_article', (el) =>
       el.textContent.trim(),
     );
-    const photo = await page.$eval('.end_photo_org img', (el) => el?.src);
+
+    const imageElement = await page.$('.end_photo_org img');
+      const photo = imageElement
+        ? await page.evaluate((img) => img.src, imageElement)
+        : null;
     const date = await page.$eval('.media_end_head_info_datestamp_time', (el) =>
       el.textContent.trim(),
     );
