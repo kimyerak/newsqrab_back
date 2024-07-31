@@ -130,8 +130,10 @@ export class ArticleService {
         el.textContent.trim(),
       );
       const imageElement = await page.$('.end_photo_org img');
-      const photo = imageElement ? await page.evaluate(img => img.src, imageElement) : null;
-      const date = await page.$eval('.date', el => el.textContent.trim());
+      const photo = imageElement
+        ? await page.evaluate((img) => img.src, imageElement)
+        : null;
+      const date = await page.$eval('.date', (el) => el.textContent.trim());
 
       const existingArticle = await this.articleModel.findOne({ title });
       if (!existingArticle) {
@@ -166,8 +168,12 @@ export class ArticleService {
         el.textContent.trim(),
       );
       const imageElement = await page.$('.end_photo_org img');
-      const photo = imageElement ? await page.evaluate(img => img.src, imageElement) : null;
-      const date = await page.$eval('.article_head_info em', el => el?.textContent.trim());
+      const photo = imageElement
+        ? await page.evaluate((img) => img.src, imageElement)
+        : null;
+      const date = await page.$eval('.article_head_info em', (el) =>
+        el?.textContent.trim(),
+      );
 
       const existingArticle = await this.articleModel.findOne({ title });
       if (!existingArticle) {
@@ -206,57 +212,81 @@ export class ArticleService {
     const yesterdayStart = moment().subtract(1, 'days').startOf('day').toDate();
     const todayStart = moment().startOf('day').toDate();
 
-    const randomArticles = await this.articleModel.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: yesterdayStart, $lt: todayStart }
-        }
-      },
-      {
-        $group: {
-          _id: "$category",
-          articles: { $push: "$$ROOT" }
-        }
-      },
-      {
-        $project: {
-          randomArticle: { $arrayElemAt: ["$articles", { $floor: { $multiply: [{ $rand: {} }, { $size: "$articles" }] } }] }
-        }
-      }
-    ]).exec();
+    const randomArticles = await this.articleModel
+      .aggregate([
+        {
+          $match: {
+            createdAt: { $gte: yesterdayStart, $lt: todayStart },
+          },
+        },
+        {
+          $group: {
+            _id: '$category',
+            articles: { $push: '$$ROOT' },
+          },
+        },
+        {
+          $project: {
+            randomArticle: {
+              $arrayElemAt: [
+                '$articles',
+                {
+                  $floor: {
+                    $multiply: [{ $rand: {} }, { $size: '$articles' }],
+                  },
+                },
+              ],
+            },
+          },
+        },
+      ])
+      .exec();
 
     if (!randomArticles.length) {
-      throw new NotFoundException('No articles found from yesterday in any category.');
+      throw new NotFoundException(
+        'No articles found from yesterday in any category.',
+      );
     } else {
       // GPT에게 대사 만들어달라고 하기
       // randomArticle의 sumamry를 GPT로 생성한 대사로 업데이트
       const openAiService = new OpenAiService(new ConfigService()); // OpenAiService 인스턴스화
       for (const article of randomArticles) {
-        const prompt = PROMPT_SUMMARIZE_TEMPLATE.replace("{content}", article.randomArticle.content);
+        const prompt = PROMPT_SUMMARIZE_TEMPLATE.replace(
+          '{content}',
+          article.randomArticle.content,
+        );
         const speech = await openAiService.generateText(prompt); // GPT-3를 사용하여 대사 생성
         article.summary = speech; // 생성된 대사로 기사 요약 업데이트
-        await this.articleModel.findByIdAndUpdate({_id: article.randomArticle._id}, { summary: speech }).exec(); // DB에 업데이트
+        await this.articleModel
+          .findByIdAndUpdate(
+            { _id: article.randomArticle._id },
+            { summary: speech },
+          )
+          .exec(); // DB에 업데이트
         const videoUrl = 'S3_video_url_here'; // AWS S3에 저장된 비디오 URL;
-        await this.reelsService.createReelFromArticle(article.randomArticle, videoUrl);
+        await this.reelsService.createReelFromArticle(
+          article.randomArticle,
+          videoUrl,
+        );
       }
     }
 
     // return randomArticles;
   }
 
-  async updateArticleSummary(articleId: string, summary: string): Promise<Article> {
-    const updatedArticle = await this.articleModel.findByIdAndUpdate(
-      articleId,
-      { $set: { summary } },
-      { new: true }
-    ).exec();
+  async updateArticleSummary(
+    articleId: string,
+    summary: string,
+  ): Promise<Article> {
+    const updatedArticle = await this.articleModel
+      .findByIdAndUpdate(articleId, { $set: { summary } }, { new: true })
+      .exec();
 
     if (!updatedArticle) {
       throw new NotFoundException(`Article with ID ${articleId} not found`);
     }
     return updatedArticle;
   }
-
 
   // 필요한 다른 메서드들 (find, remove 등) 추가 가능
 }
