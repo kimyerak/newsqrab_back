@@ -1,10 +1,20 @@
-import { IsString, IsOptional, IsArray } from 'class-validator';
+import { IsString, IsOptional, IsArray, IsNotEmpty } from 'class-validator';
 import { Types } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 
 class CommentDto {
   @ApiProperty({ description: 'ID of the user who commented' })
   userId: Types.ObjectId;
+
+  @ApiProperty({ description: 'Nickname of the user who commented' })
+  @IsString()
+  @IsNotEmpty()
+  nickname: string;
+
+  @ApiProperty({ description: 'Profile picture URL of the user who commented' })
+  @IsString()
+  @IsOptional()
+  profilePicture: string;
 
   @ApiProperty({ description: 'Content of the comment' })
   @IsString()

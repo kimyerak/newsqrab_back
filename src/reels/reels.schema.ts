@@ -25,6 +25,8 @@ export class Reels extends Document {
     type: [
       {
         userId: { type: Types.ObjectId, ref: 'User' },
+        nickname: { type: String, required: true },
+        profilePicture: { type: String }, // 프로필 사진 URL
         content: { type: String, required: true },
         likes: { type: Number, default: 0 }, // 좋아요 수
       },
@@ -33,6 +35,8 @@ export class Reels extends Document {
   })
   comments: {
     userId: Types.ObjectId;
+    nickname: string;
+    profilePicture: string;
     content: string;
     likes: number; // 좋아요 수
   }[];
