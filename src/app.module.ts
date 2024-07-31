@@ -17,8 +17,7 @@ import { S3Module } from './s3/s3.module';
     ConfigModule.forRoot({
       isGlobal: true, // 전역으로 사용
     }),
-    // MongooseModule.forRoot('mongodb://newsqrab:newsqrab123!@oi66r.pub-vpc.mg.naverncp.com:17017/newsqrab'),
-    MongooseModule.forRoot('mongodb://127.0.0.1:27017/newsqrab'),
+    MongooseModule.forRoot('mongodb://newsqrab:newsqrab123!@oi66r.pub-vpc.mg.naverncp.com:17017/newsqrab'),
     UserModule,
     ArticleModule,
     ReelsModule,
