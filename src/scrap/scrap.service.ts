@@ -27,16 +27,17 @@ export class ScrapService {
       throw new NotFoundException('Scrap not found');
     }
 
-    const index = scrap.followerEmojis.findIndex(
-      (fe) => fe.userId.toString() === followerEmoji.userId,
-    );
+    // const index = scrap.followerEmojis.findIndex(
+    //   (fe) => fe.userId.toString() === followerEmoji.userId,
+    // );
 
-    if (index !== -1) {
-      scrap.followerEmojis[index].emoji = followerEmoji.emoji;
-    } else {
-      scrap.followerEmojis.push(followerEmoji);
-    }
+    // if (index !== -1) {
+    //   scrap.followerEmojis[index].emoji = followerEmoji.emoji;
+    // } else {
+    //   scrap.followerEmojis.push(followerEmoji);
+    // }
 
+    scrap.followerEmojis.push(followerEmoji);
     return scrap.save();
   }
   async findScrapsByUserNickname(usernickname: string): Promise<Scrap[]> {
