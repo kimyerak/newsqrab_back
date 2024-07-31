@@ -127,13 +127,19 @@ export class ArticleService {
   }
 
   async fetchNews(): Promise<void> {
+    console.log('Fetching news...');
     const entertainmentUrl = 'https://entertain.naver.com/now';
+    console.log("here1");
     const browser = await puppeteer.launch();
+    console.log("here2");
     const page = await browser.newPage();
+    console.log("here3");
     await page.goto(entertainmentUrl, { waitUntil: 'networkidle0' });
+    console.log("here4");
     const entertainmentArticleLinks = await page.$$eval('.rank_lst a', (el) =>
       el.map((a) => a.href),
     );
+    console.log("here5");
     for (const articleLink of entertainmentArticleLinks) {
       console.log(articleLink);
       await page.goto(articleLink, { waitUntil: 'networkidle0' });
