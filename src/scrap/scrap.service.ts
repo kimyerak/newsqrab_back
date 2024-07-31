@@ -48,5 +48,19 @@ export class ScrapService {
       .sort({ date: -1 })
       .exec();
   }
+
+  async getHotScraps(): Promise<Scrap[]> {
+    return this.scrapModel
+      .aggregate([
+        {
+          $addFields: {
+            followerEmojisCount: { $size: '$followerEmojis' }, // 배열의 길이를 표현하는 가상의 필드 추가
+          },
+        },
+        { $sort: { followerEmojisCount: -1 } }, // 내림차순 정렬
+        { $limit: 10 }, // 필요한 경우 결과 제한
+      ])
+      .exec();
+  }
   // Additional methods for CRUD operations can be added here
 }

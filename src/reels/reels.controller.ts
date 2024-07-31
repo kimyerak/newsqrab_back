@@ -11,7 +11,7 @@ export class ReelsController {
   constructor(private readonly reelsService: ReelsService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new reels' })
+  @ApiOperation({ summary: '프론트에서 쓸일 x - Create a new reels' })
   @ApiResponse({
     status: 201,
     description: 'The reels has been successfully created.',
@@ -22,7 +22,7 @@ export class ReelsController {
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Update reels information' })
+  @ApiOperation({ summary: '프론트에선 x - Update reels information' })
   @ApiResponse({
     status: 200,
     description: 'The reels information has been successfully updated.',
@@ -37,7 +37,7 @@ export class ReelsController {
   }
 
   @Get(':date')
-  @ApiOperation({ summary: 'Get reels by date' })
+  @ApiOperation({ summary: '탭4 - Get reels by date' })
   @ApiResponse({
     status: 200,
     description: 'List of reels for the specified date.',
@@ -49,5 +49,20 @@ export class ReelsController {
   })
   getByDate(@Param('date') date: string): Promise<Reels[]> {
     return this.reelsService.findByDate(date);
+  }
+
+  @Get('owner/:owner')
+  @ApiOperation({ summary: '특정 소유자별로 릴스 가져오기' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of reels for the specified owner.',
+    type: [Reels],
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'No reels found for the specified owner.',
+  })
+  getByOwner(@Param('owner') owner: string): Promise<Reels[]> {
+    return this.reelsService.findByOwner(owner);
   }
 }

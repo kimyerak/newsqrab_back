@@ -11,7 +11,6 @@ import {
   Delete,
   UseInterceptors,
   UploadedFile,
-  Patch,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
@@ -26,7 +25,8 @@ export class UserController {
   private readonly logger = new Logger(UserController.name);
   constructor(private readonly userService: UserService) {}
 
-  @Patch('register')
+  @Post('register')
+  @UseInterceptors(FileInterceptor('profilePicture'))
   @ApiOperation({ summary: '탭0 - 회원가입' })
   @ApiResponse({
     status: 201,
@@ -37,8 +37,9 @@ export class UserController {
   @ApiResponse({ status: 409, description: 'Username already exists. 겹침' })
   async createUser(
     @Body() createUserDto: CreateUserDto,
+    @UploadedFile() profilePicture: Express.Multer.File,
   ): Promise<CreateUserResponseDto> {
-    const user = await this.userService.create(createUserDto);
+    const user = await this.userService.create(createUserDto, profilePicture);
     // 필요한 필드만 포함하여 DTO로 반환
     return {
       _id: user._id.toString(),
@@ -83,7 +84,18 @@ export class UserController {
     }
   }
 
-  @Patch(':id/profile')
+  @Get('kings')
+  @ApiOperation({ summary: '탭6 - 팔로워 많은 순서로 유저 리스트 가져오기' })
+  @ApiResponse({
+    status: 200,
+    description: 'Users fetched and sorted by follower count.',
+    type: [UserResponseDto],
+  })
+  async getKings(): Promise<UserResponseDto[]> {
+    return this.userService.getTopUsersByFollowers();
+  }
+
+  @Put(':id/profile')
   @UseInterceptors(FileInterceptor('profilePicture'))
   @ApiOperation({ summary: '탭5 - 마이페이지(username, nickname, bio)수정' })
   @ApiResponse({
@@ -106,7 +118,7 @@ export class UserController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get a user by ID' })
+  @ApiOperation({ summary: '탭 어디든 - 유저 자기 자신의 정보 전체 불러오기' })
   @ApiResponse({
     status: 200,
     description: 'The user has been successfully retrieved.',
@@ -118,7 +130,7 @@ export class UserController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete a user' })
+  @ApiOperation({ summary: '탭 5 - 유저 탈퇴시 유저 삭제' })
   @ApiResponse({
     status: 204,
     description: 'The user has been successfully deleted.',
@@ -130,7 +142,7 @@ export class UserController {
 
   //팔로우, 스크랩 등 복잡한 로직 시작
   @Put(':id/following/:followUserId')
-  @ApiOperation({ summary: 'Add following' })
+  @ApiOperation({ summary: '탭2 - 맘에 드는 사람 Add following' })
   @ApiResponse({ status: 200, description: 'Following added successfully.' })
   async addFollowing(
     @Param('id') id: string,
@@ -141,7 +153,7 @@ export class UserController {
   }
 
   @Delete(':id/following/:unfollowUserId')
-  @ApiOperation({ summary: 'Delete following' })
+  @ApiOperation({ summary: '탭 5 -언팔로우 Delete following' })
   @ApiResponse({ status: 200, description: 'Following removed successfully.' })
   @HttpCode(200) // 명확한 응답 코드를 위해 추가
   async deleteFollowing(
@@ -153,7 +165,7 @@ export class UserController {
   }
 
   @Put(':id/follower/:followerUserId')
-  @ApiOperation({ summary: 'Add follower' })
+  @ApiOperation({ summary: '안쓰일듯 - Add follower' })
   @ApiResponse({ status: 200, description: 'Follower added successfully.' })
   async addFollower(
     @Param('id') id: string,
@@ -164,7 +176,7 @@ export class UserController {
   }
 
   @Delete(':id/follower/:unfollowerUserId')
-  @ApiOperation({ summary: 'Delete follower' })
+  @ApiOperation({ summary: '탭5 - 나를 팔로우하지 못하게 삭제Delete follower' })
   @ApiResponse({ status: 200, description: 'Follower removed successfully.' })
   @HttpCode(200) // 명확한 응답 코드를 위해 추가
   async deleteFollower(
@@ -176,7 +188,7 @@ export class UserController {
   }
 
   @Put(':id/scrap/:scrapId')
-  @ApiOperation({ summary: 'Add scrap' })
+  @ApiOperation({ summary: '안쓰일듯 - Add scrap' })
   @ApiResponse({ status: 200, description: 'Scrap added successfully.' })
   async addScrap(
     @Param('id') id: string,
@@ -187,7 +199,7 @@ export class UserController {
   }
 
   @Delete(':id/scrap/:scrapId')
-  @ApiOperation({ summary: 'Delete scrap' })
+  @ApiOperation({ summary: '탭5 - 내 페이지에서 스크랩 삭제 Delete scrap' })
   @ApiResponse({ status: 200, description: 'Scrap removed successfully.' })
   @HttpCode(200) // 명확한 응답 코드를 위해 추가
   async deleteScrap(

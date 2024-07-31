@@ -14,6 +14,7 @@ import {
   UpdateUserProfileDto,
 } from './dto/update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UserResponseDto } from './dto/user-response.dto';
 import * as bcrypt from 'bcrypt';
 import { S3Service } from '../s3/s3.service';
 
@@ -24,7 +25,35 @@ export class UserService {
     private readonly s3Service: S3Service,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  // async create(createUserDto: CreateUserDto): Promise<User> {
+  //   // username 중복 체크
+  //   const existingUser = await this.userModel.findOne({
+  //     username: createUserDto.username,
+  //   });
+  //   if (existingUser) {
+  //     throw new ConflictException('Username already exists');
+  //   }
+
+  //   if (createUserDto.password) {
+  //     // 비밀번호 해싱 처리
+  //     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+  //     createUserDto.password = hashedPassword;
+  //   } else {
+  //     // 외부 로그인 (예: 네이버 로그인) 처리
+  //     if (!this.isExternalLogin(createUserDto)) {
+  //       throw new BadRequestException(
+  //         'Password is required for non-external logins.',
+  //       );
+  //     }
+  //   }
+
+  //   const createdUser = new this.userModel(createUserDto);
+  //   return createdUser.save();
+  // }
+  async create(
+    createUserDto: CreateUserDto,
+    profileImage?: Express.Multer.File,
+  ): Promise<User> {
     // username 중복 체크
     const existingUser = await this.userModel.findOne({
       username: createUserDto.username,
@@ -33,12 +62,21 @@ export class UserService {
       throw new ConflictException('Username already exists');
     }
 
+    // 프로필 이미지 업로드 처리
+    if (profileImage) {
+      const profileImageUrl = await this.s3Service.uploadFile(
+        'profiles',
+        profileImage,
+      );
+      createUserDto.profilePicture = profileImageUrl;
+    }
+
+    // 비밀번호 해싱 처리
     if (createUserDto.password) {
-      // 비밀번호 해싱 처리
       const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
       createUserDto.password = hashedPassword;
     } else {
-      // 외부 로그인 (예: 네이버 로그인) 처리
+      // 외부 로그인인 경우 비밀번호가 없어도 허용
       if (!this.isExternalLogin(createUserDto)) {
         throw new BadRequestException(
           'Password is required for non-external logins.',
@@ -292,5 +330,26 @@ export class UserService {
     );
     unfollowerUser.following_count = unfollowerUser.following.length;
     await unfollowerUser.save();
+  }
+
+  async getTopUsersByFollowers(): Promise<UserResponseDto[]> {
+    const users = await this.userModel
+      .find()
+      .sort({ follower_count: -1 })
+      .limit(10)
+      .exec();
+
+    // Map User model to UserResponseDto
+    return users.map((user) => ({
+      _id: user._id.toString(),
+      username: user.username,
+      nickname: user.nickname,
+      profilePicture: user.profilePicture,
+      bio: user.bio,
+      follower_count: user.follower_count,
+      following_count: user.following_count,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    }));
   }
 }

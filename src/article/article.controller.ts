@@ -11,7 +11,7 @@ export class ArticleController {
   constructor(private readonly articleService: ArticleService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new article' })
+  @ApiOperation({ summary: '프론트에서 쓸일 x. Create a new article' })
   @ApiResponse({
     status: 201,
     description: 'The article has been successfully created.',
@@ -38,7 +38,7 @@ export class ArticleController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all articles' })
+  @ApiOperation({ summary: '탭3 - 맨첨엔 모든기사 불러오고' })
   @ApiResponse({
     status: 200,
     description: 'An array of all articles',
@@ -48,7 +48,7 @@ export class ArticleController {
     return this.articleService.findAll();
   }
   @Get(':category')
-  @ApiOperation({ summary: 'Get articles by category' })
+  @ApiOperation({ summary: '탭3 - 버튼 누르면 카테고리에 맞게 불러오기' })
   @ApiResponse({
     status: 200,
     description: 'An array of articles filtered by category',
