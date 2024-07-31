@@ -54,6 +54,12 @@ export class UpdateUserActivityDto {
     type: [String], // Swagger에서 ObjectId를 String으로 표시
     required: false,
   })
+  @ApiProperty({ description: 'The number of followers' })
+  follower_count: number;
+
+  @ApiProperty({ description: 'The number of users the user is following' })
+  following_count: number;
+
   @IsArray()
   @IsOptional()
   scraps?: Types.ObjectId[];

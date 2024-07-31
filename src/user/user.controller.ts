@@ -16,10 +16,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { CreateUserDto, CreateUserResponseDto } from './dto/create-user.dto';
 import { LoginDto, LoginResponseDto } from './dto/login.dto';
-import {
-  UpdateUserProfileDto,
-  UpdateUserActivityDto,
-} from './dto/update-user.dto';
+import { UpdateUserProfileDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 @ApiTags('users') // 태그 지정
@@ -50,6 +47,8 @@ export class UserController {
       bio: user.bio,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
+      follower_count: 0,
+      following_count: 0,
     };
   }
 
@@ -105,33 +104,6 @@ export class UserController {
     return updatedUser;
   }
 
-  @Put(':id/activity')
-  @ApiOperation({ summary: 'Update user activity information' })
-  @ApiResponse({
-    status: 200,
-    description: 'The user activity has been successfully updated.',
-    type: UpdateUserActivityDto,
-  })
-  @ApiResponse({ status: 404, description: 'User not found.' })
-  async updateUserActivity(
-    @Param('id') id: string,
-    @Body() updateUserActivityDto: UpdateUserActivityDto,
-  ): Promise<any> {
-    const updatedUser = await this.userService.updateUserActivity(
-      id,
-      updateUserActivityDto,
-    );
-    return {
-      _id: updatedUser._id.toString(),
-      username: updatedUser.username,
-      nickname: updatedUser.nickname,
-      profilePicture: updatedUser.profilePicture,
-      bio: updatedUser.bio,
-      following: updatedUser.following,
-      followers: updatedUser.followers,
-      scraps: updatedUser.scraps,
-    };
-  }
   @Get(':id')
   @ApiOperation({ summary: 'Get a user by ID' })
   @ApiResponse({
@@ -153,5 +125,75 @@ export class UserController {
   @ApiResponse({ status: 404, description: 'User not found.' })
   async delete(@Param('id') id: string) {
     return this.userService.deleteUser(id);
+  }
+
+  //팔로우, 스크랩 등 복잡한 로직 시작
+  @Put(':id/following/:followUserId')
+  @ApiOperation({ summary: 'Add following' })
+  @ApiResponse({ status: 200, description: 'Following added successfully.' })
+  async addFollowing(
+    @Param('id') id: string,
+    @Param('followUserId') followUserId: string,
+  ): Promise<any> {
+    await this.userService.addFollowing(id, followUserId);
+    return { message: 'Following added successfully.' };
+  }
+
+  @Delete(':id/following/:unfollowUserId')
+  @ApiOperation({ summary: 'Delete following' })
+  @ApiResponse({ status: 200, description: 'Following removed successfully.' })
+  @HttpCode(200) // 명확한 응답 코드를 위해 추가
+  async deleteFollowing(
+    @Param('id') id: string,
+    @Param('unfollowUserId') unfollowUserId: string,
+  ): Promise<any> {
+    await this.userService.deleteFollowing(id, unfollowUserId);
+    return { message: 'Following removed successfully.' };
+  }
+
+  @Put(':id/follower/:followerUserId')
+  @ApiOperation({ summary: 'Add follower' })
+  @ApiResponse({ status: 200, description: 'Follower added successfully.' })
+  async addFollower(
+    @Param('id') id: string,
+    @Param('followerUserId') followerUserId: string,
+  ): Promise<any> {
+    await this.userService.addFollower(id, followerUserId);
+    return { message: 'Follower added successfully.' };
+  }
+
+  @Delete(':id/follower/:unfollowerUserId')
+  @ApiOperation({ summary: 'Delete follower' })
+  @ApiResponse({ status: 200, description: 'Follower removed successfully.' })
+  @HttpCode(200) // 명확한 응답 코드를 위해 추가
+  async deleteFollower(
+    @Param('id') id: string,
+    @Param('unfollowerUserId') unfollowerUserId: string,
+  ): Promise<any> {
+    await this.userService.deleteFollower(id, unfollowerUserId);
+    return { message: 'Follower removed successfully.' };
+  }
+
+  @Put(':id/scrap/:scrapId')
+  @ApiOperation({ summary: 'Add scrap' })
+  @ApiResponse({ status: 200, description: 'Scrap added successfully.' })
+  async addScrap(
+    @Param('id') id: string,
+    @Param('scrapId') scrapId: string,
+  ): Promise<any> {
+    await this.userService.addScrap(id, scrapId);
+    return { message: 'Scrap added successfully.' };
+  }
+
+  @Delete(':id/scrap/:scrapId')
+  @ApiOperation({ summary: 'Delete scrap' })
+  @ApiResponse({ status: 200, description: 'Scrap removed successfully.' })
+  @HttpCode(200) // 명확한 응답 코드를 위해 추가
+  async deleteScrap(
+    @Param('id') id: string,
+    @Param('scrapId') scrapId: string,
+  ): Promise<any> {
+    await this.userService.deleteScrap(id, scrapId);
+    return { message: 'Scrap removed successfully.' };
   }
 }

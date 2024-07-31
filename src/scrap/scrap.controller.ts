@@ -1,15 +1,33 @@
-import { Controller, Get, Post, Body, Param, Put } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  NotFoundException,
+} from '@nestjs/common';
 import { ScrapService } from './scrap.service';
+import { UserService } from '../user/user.service';
 import { Scrap } from './scrap.schema';
 import { CreateScrapDto } from './dto/create-scrap.dto';
 import { UpdateFollowerEmojisResponseDto } from './dto/update-follower-emoji.dto';
 import { FollowerEmojiDto } from './dto/update-scrap.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiParam,
+} from '@nestjs/swagger';
 
 @ApiTags('scraps')
 @Controller('scraps')
 export class ScrapController {
-  constructor(private readonly scrapService: ScrapService) {}
+  constructor(
+    private readonly scrapService: ScrapService,
+    private readonly userService: UserService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new scrap' })
@@ -69,5 +87,31 @@ export class ScrapController {
     @Param('usernickname') usernickname: string,
   ): Promise<Scrap[]> {
     return this.scrapService.findScrapsByUserNickname(usernickname);
+  }
+
+  @Get('following/:userId')
+  @ApiOperation({ summary: 'Get scraps from users you are following' })
+  @ApiResponse({
+    status: 200,
+    description:
+      'List of scraps from users the specified user is following, sorted by date.',
+    type: [CreateScrapDto],
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found or user is not following anyone.',
+  })
+  @ApiParam({ name: 'userId', description: 'ID of the user', type: String })
+  async getScrapsByFollowing(
+    @Param('userId') userId: string,
+  ): Promise<Scrap[]> {
+    const following = await this.userService.getFollowing(userId);
+    if (!following || following.length === 0) {
+      throw new NotFoundException(
+        'User not found or user is not following anyone.',
+      );
+    }
+    const followingIds = following.map((user) => user._id.toString());
+    return this.scrapService.findByUserIds(followingIds);
   }
 }

@@ -42,5 +42,11 @@ export class ScrapService {
   async findScrapsByUserNickname(usernickname: string): Promise<Scrap[]> {
     return this.scrapModel.find({ usernickname }).exec();
   }
+  async findByUserIds(userIds: string[]): Promise<Scrap[]> {
+    return this.scrapModel
+      .find({ userId: { $in: userIds } })
+      .sort({ date: -1 })
+      .exec();
+  }
   // Additional methods for CRUD operations can be added here
 }
