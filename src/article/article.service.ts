@@ -266,10 +266,8 @@ export class ArticleService {
             { summary: speech },
           )
           .exec(); // DB에 업데이트
-        const videoUrl = 'S3_video_url_here'; // AWS S3에 저장된 비디오 URL;
         await this.reelsService.createReelFromArticle(
           article.randomArticle,
-          videoUrl,
         );
       }
     }
