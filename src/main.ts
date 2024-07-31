@@ -28,9 +28,9 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document); // Swagger 문서 URL을 '/api'로 설정
   await app.listen(3000);
 
-  console.log('Running a task every midnight');
+  // console.log('Running a task every midnight');
   // await articleService.fetchNews();
-  articleService.findReelsArticle();
+  // articleService.findReelsArticle();
   // await app.listen(3000);
 }
 bootstrap();
