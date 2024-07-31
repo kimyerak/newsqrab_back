@@ -105,7 +105,7 @@ export class ArticleService {
     );
 
     const hasauthor = await page.$('.byline');
-    const author = hasauthor ? await page.$eval('.byline', (el) => el.textContent.trim()) : null;
+    const author = hasauthor ? await page.$eval('.byline', (el) => el.textContent.trim()) : 'newsqrab';
     const content = await page.$eval('#newsct_article', (el) =>
       el.textContent.trim(),
     );
