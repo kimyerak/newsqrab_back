@@ -1,4 +1,12 @@
-import { Controller, Post, Put, Param, Body, Get } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Put,
+  Param,
+  Body,
+  Get,
+  NotFoundException,
+} from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
@@ -56,5 +64,20 @@ export class ArticleController {
   })
   getByCategory(@Param('category') category: string): Promise<Article[]> {
     return this.articleService.findByCategory(category);
+  }
+  @Get(':id')
+  @ApiOperation({ summary: 'Get a specific article by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'The article details',
+    type: Article,
+  })
+  @ApiResponse({ status: 404, description: 'Article not found.' })
+  async getById(@Param('id') id: string): Promise<Article> {
+    const article = await this.articleService.findById(id);
+    if (!article) {
+      throw new NotFoundException('Article not found');
+    }
+    return article;
   }
 }

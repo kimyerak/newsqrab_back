@@ -85,7 +85,7 @@ export class UserController {
   }
 
   @Get('kings')
-  @ApiOperation({ summary: '탭6 - 팔로워 많은 순서로 유저 리스트 가져오기' })
+  @ApiOperation({ summary: '탭2 - 팔로워 많은 순서로 유저 리스트 가져오기' })
   @ApiResponse({
     status: 200,
     description: 'Users fetched and sorted by follower count.',

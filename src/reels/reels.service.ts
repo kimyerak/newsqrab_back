@@ -15,7 +15,7 @@ import * as path from 'path';
 const qs = require('qs');
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
-
+import { CommentDto } from './dto/comment.dto';
 @Injectable()
 export class ReelsService {
   constructor(
@@ -200,5 +200,46 @@ export class ReelsService {
       reels = await this.reelsModel.find({ owner: 'newsqrap' }).exec();
     }
     return reels;
+  }
+  async getCommentsSorted(reelId: string): Promise<CommentDto[]> {
+    const reel = await this.reelsModel.findById(reelId).exec();
+    if (!reel) {
+      throw new NotFoundException('Reel not found');
+    }
+    const sortedComments = reel.comments.sort((a, b) => b.likes - a.likes);
+    return sortedComments.map((comment) => ({
+      userId: comment.userId,
+      nickname: comment.nickname,
+      profilePicture: comment.profilePicture,
+      content: comment.content,
+      likes: comment.likes,
+    }));
+  }
+
+  async addComment(reelId: string, commentDto: CommentDto): Promise<Reels> {
+    const reel = await this.reelsModel.findById(reelId).exec();
+    if (!reel) {
+      throw new NotFoundException('Reel not found');
+    }
+    reel.comments.push(commentDto);
+    return reel.save();
+  }
+
+  async likeComment(reelId: string, commentId: string): Promise<Reels> {
+    const reel = await this.reelsModel.findById(reelId).exec();
+    if (!reel) {
+      throw new NotFoundException('Reel not found');
+    }
+
+    // commentId를 ObjectId로 변환
+    const objectId = new Types.ObjectId(commentId);
+
+    // 서브도큐먼트의 id로 찾기
+    const comment = reel.comments.id(objectId);
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+    comment.likes += 1;
+    return reel.save();
   }
 }
