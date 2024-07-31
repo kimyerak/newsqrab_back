@@ -94,7 +94,7 @@ export class ArticleService {
 
     // 시뮬레이션할 클릭 이벤트가 있다면 실행
     try {
-      await page.waitForSelector('[data-clk="rpt.back"]', { visible: true });
+      await page.waitForSelector('[data-clk="rpt.back"]', { visible: true, timeout: 1500 });
       await page.click('[data-clk="rpt.back"]');
     } catch (e) {
       console.log('No pop-up');
@@ -103,7 +103,9 @@ export class ArticleService {
     const title = await page.$eval('.media_end_head_title', (el) =>
       el.textContent.trim(),
     );
-    const author = await page.$eval('.byline', (el) => el.textContent.trim());
+
+    const hasauthor = await page.$('.byline');
+    const author = hasauthor ? await page.$eval('.byline', (el) => el.textContent.trim()) : null;
     const content = await page.$eval('#newsct_article', (el) =>
       el.textContent.trim(),
     );
