@@ -32,7 +32,7 @@ async function bootstrap() {
   //   async () => {
       console.log('Running a task every midnight');
       // await articleService.fetchNews();
-      articleService.findReelsArticle();
+      // articleService.findReelsArticle();
       
 
   //   },
