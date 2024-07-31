@@ -6,13 +6,18 @@ import { Reels } from './reels.schema';
 import { CreateReelsDto } from './dto/create-reels.dto';
 import { UpdateReelsDto } from './dto/update-reels.dto';
 import { Article } from '../article/article.schema';
+import { S3Service } from '../s3/s3.service';
+import { Readable } from 'stream';
 const fs = require('fs');
 const axios = require('axios');
 const qs = require('qs');
 
 @Injectable()
 export class ReelsService {
-  constructor(@InjectModel(Reels.name) private reelsModel: Model<Reels>) {}
+  constructor(
+    @InjectModel(Reels.name) private reelsModel: Model<Reels>,
+    private readonly s3Service: S3Service,
+  ) { }
 
   async create(createReelsDto: CreateReelsDto): Promise<Reels> {
     // 기본 owner 값 설정
@@ -92,27 +97,35 @@ export class ReelsService {
         'X-NCP-APIGW-API-KEY': process.env.X_NCP_APIGW_API_KEY,
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      responseType: 'stream',
+      responseType: 'arraybuffer',
     };
 
     try {
       console.log('try문 들어옴#################');
       const response = await axios(options);
       console.log('axios반응 받음#################');
-      const filePath = `./tts/tts${reelsId}_${Date.now()}.mp3`;
-      console.log('저장경로설정함#################');
-      const writer = fs.createWriteStream(filePath);
-      console.log('fs로 저장#################');
-      response.data.pipe(writer);
-      console.log('pipe 작동#################');
+      const buffer = Buffer.from(response.data);
 
-      return new Promise((resolve, reject) => {
-        writer.on('finish', () => {
-          console.log('파일 쓰기 완료');
-          resolve(filePath);
-        });
-        writer.on('error', reject);
-      });
+    // Mimic a Multer File
+    const fakeFile: Express.Multer.File = {
+      buffer: buffer,
+      originalname: `tts${reelsId}_${Date.now()}.mp3`,
+      mimetype: 'audio/mpeg',
+      fieldname: 'file',
+      encoding: '7bit',
+      size: buffer.length,
+      stream: new Readable({
+        read() {
+          this.push(buffer);
+          this.push(null); // Signal end of stream
+        }
+      }),
+      destination: '',
+      filename: '',
+      path: ''
+    };
+
+    return await this.s3Service.uploadFile('tts', fakeFile);
     } catch (error) {
       console.error('Error fetching TTS:', error);
       // throw error;
