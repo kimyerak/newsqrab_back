@@ -3,7 +3,6 @@ import { Types } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
-
 export class CreateReelsDto {
   @ApiProperty({ description: 'Owner of the reels, e.g., a newspaper name' })
   @IsString()
