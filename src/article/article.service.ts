@@ -159,7 +159,7 @@ export class ArticleService {
         '.NewsEndMain_article_title__kqEzS',
         (el) => el.textContent.trim(),
       );
-      const author = await page.$eval('.NewsEndMain_author__sl+2K', (el) =>
+      const author = await page.$eval('.NewsEndMain_article_journalist_info__Cdr3D', (el) =>
         el.textContent.trim(),
       );
       const content = await page.$eval('._article_content', (el) =>
