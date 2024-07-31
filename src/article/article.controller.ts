@@ -73,8 +73,8 @@ export class ArticleController {
     return this.articleService.findAll();
   }
 
-  @ApiTags('category')
-  @Get(':category')
+
+  @Get('category/:category')
   @ApiOperation({ summary: '탭3 - 버튼 누르면 카테고리에 맞게 불러오기' })
   @ApiResponse({
     status: 200,
