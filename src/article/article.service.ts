@@ -82,6 +82,7 @@ export class ArticleService {
   ): Promise<void> {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
+    console.log(articleUrl);
     await page.goto(articleUrl, {
       waitUntil: 'domcontentloaded',
       timeout: 1000,
@@ -134,6 +135,7 @@ export class ArticleService {
       el.map((a) => a.href),
     );
     for (const articleLink of entertainmentArticleLinks) {
+      console.log(articleLink);
       await page.goto(articleLink, { waitUntil: 'networkidle0' });
       const title = await page.$eval(
         '.NewsEndMain_article_title__kqEzS',
@@ -171,6 +173,7 @@ export class ArticleService {
       el.map((a) => a.href),
     );
     for (const articleLink of sportsArticleLinks) {
+      console.log(articleLink);
       await page.goto(articleLink, { waitUntil: 'networkidle0' });
       const title = await page.$eval(
         '.NewsEndMain_article_title__kqEzS',
