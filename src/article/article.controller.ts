@@ -74,6 +74,7 @@ export class ArticleController {
   })
   @ApiResponse({ status: 404, description: 'Article not found.' })
   async getById(@Param('id') id: string): Promise<Article> {
+    console.log('Controller: Get article by ID:', id);
     const article = await this.articleService.findById(id);
     if (!article) {
       throw new NotFoundException('Article not found');

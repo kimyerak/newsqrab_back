@@ -45,7 +45,7 @@ export class ArticleService {
     return this.articleModel.find({ category }).exec();
   }
   async findById(id: string): Promise<Article> {
-    console.log(id);
+    console.log('Requested ID:', id);
     if (!Types.ObjectId.isValid(id)) {
       throw new NotFoundException('Invalid ID format');
     }
@@ -53,7 +53,7 @@ export class ArticleService {
     if (!article) {
       throw new NotFoundException('Article not found');
     }
-    console.log(article);
+    console.log('Found Article:', article);
     return article;
   }
 
