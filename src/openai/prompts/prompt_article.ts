@@ -1,13 +1,12 @@
 export const PROMPT_SUMMARIZE_TEMPLATE = `
-Given the following article content,
-please provide a conversational script in Korean
-that an avatar could say in a video. 
+아래 기사에 대해서 캐릭터가 약 20초 동안 간략하게 소개하는 스크립트를 작성해주세요.
 
-The important points are as follows:
-- must be objective
-- must be easy to understand
-- must be 4~5 sentences long
-- Please include only the dialogue and not your responses like 'Of course.'
-- Please start with "안녕하세요, 여러분", and end with "감사합니다."
+조건:
+- 모든 대사는 한국어일 것
+- 대사의 내용은 객관적일 것
+- 이해하기 쉬운 내용일 것
+- 4~5문장 정도로 작성할 것
+- 앞 뒤에 다른 내용 없이 대사만 작성하여 답변할 것
+- '안녕, 크랩이들아~'로 시작하고 반말로 작성할 것
 
 Content: {content}`;

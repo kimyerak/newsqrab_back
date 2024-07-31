@@ -99,7 +99,7 @@ export class ReelsService {
       console.log('try문 들어옴#################');
       const response = await axios(options);
       console.log('axios반응 받음#################');
-      const filePath = `./tts${reelsId}_${Date.now()}.mp3`;
+      const filePath = `./tts/tts${reelsId}_${Date.now()}.mp3`;
       console.log('저장경로설정함#################');
       const writer = fs.createWriteStream(filePath);
       console.log('fs로 저장#################');
