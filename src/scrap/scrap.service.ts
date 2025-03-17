@@ -27,16 +27,16 @@ export class ScrapService {
       throw new NotFoundException('Scrap not found');
     }
 
-    const index = scrap.followerEmojis.findIndex(
-      (fe) => fe.userId.toString() === followerEmoji.userId,
-    );
+    // const index = scrap.followerEmojis.findIndex(
+    //   (fe) => fe.userId.toString() === followerEmoji.userId,
+    // );
 
-    if (index !== -1) {
-      scrap.followerEmojis[index].emoji = followerEmoji.emoji;
-    } else {
-      scrap.followerEmojis.push(followerEmoji);
-    }
-
+    // if (index !== -1) {
+    //   scrap.followerEmojis[index].emoji = followerEmoji.emoji;
+    // } else {
+    //   scrap.followerEmojis.push(followerEmoji);
+    // }
+    scrap.followerEmojis.push(followerEmoji);
     return scrap.save();
   }
   async findScrapsByUserNickname(usernickname: string): Promise<Scrap[]> {
@@ -54,11 +54,26 @@ export class ScrapService {
       .aggregate([
         {
           $addFields: {
-            followerEmojisCount: { $size: '$followerEmojis' }, // 배열의 길이를 표현하는 가상의 필드 추가
+            followerEmojisCount: { $size: '$followerEmojis' },
           },
         },
-        { $sort: { followerEmojisCount: -1 } }, // 내림차순 정렬
-        { $limit: 10 }, // 필요한 경우 결과 제한
+        { $sort: { followerEmojisCount: -1 } },
+        { $limit: 10 },
+        {
+          $lookup: {
+            from: 'users', // The users collection
+            localField: 'userId', // Field in the scraps collection
+            foreignField: '_id', // Field in the users collection
+            as: 'user', // Output array field to store user data
+          },
+        },
+        { $unwind: '$user' }, // To merge user data
+        {
+          $addFields: {
+            profilePicture: '$user.profilePicture', // Adding profilePicture to output
+          },
+        },
+        { $project: { user: 0 } }, // Optional: remove the merged user field if not needed
       ])
       .exec();
   }
