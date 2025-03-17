@@ -45,7 +45,7 @@ export class ArticleService {
     return this.articleModel.find({ category }).exec();
   }
   async findById(id: string): Promise<Article> {
-    console.log(id);
+    console.log('Requested ID:', id);
     if (!Types.ObjectId.isValid(id)) {
       throw new NotFoundException('Invalid ID format');
     }
@@ -53,7 +53,7 @@ export class ArticleService {
     if (!article) {
       throw new NotFoundException('Article not found');
     }
-    console.log(article);
+    console.log('Found Article:', article);
     return article;
   }
 
@@ -152,38 +152,38 @@ export class ArticleService {
       el.map((a) => a.href),
     );
     console.log("here5");
-    // for (const articleLink of entertainmentArticleLinks) {
-    //   console.log(articleLink);
-    //   await page.goto(articleLink, { waitUntil: 'networkidle0' });
-    //   const title = await page.$eval(
-    //     '.NewsEndMain_article_title__kqEzS',
-    //     (el) => el.textContent.trim(),
-    //   );
-    //   const author = await page.$eval('.article_head_info em', (el) =>
-    //     el.textContent.trim(),
-    //   );
-    //   const content = await page.$eval('._article_content', (el) =>
-    //     el.textContent.trim(),
-    //   );
-    //   const imageElement = await page.$('.end_photo_org img');
-    //   const photo = imageElement
-    //     ? await page.evaluate((img) => img.src, imageElement)
-    //     : null;
-    //   const date = await page.$eval('.date', (el) => el.textContent.trim());
+    for (const articleLink of entertainmentArticleLinks) {
+      console.log(articleLink);
+      await page.goto(articleLink, { waitUntil: 'networkidle0' });
+      const title = await page.$eval(
+        '.NewsEndMain_article_title__kqEzS',
+        (el) => el.textContent.trim(),
+      );
+      const author = await page.$eval('.NewsEndMain_article_journalist_info__Cdr3D', (el) =>
+        el.textContent.trim(),
+      );
+      const content = await page.$eval('._article_content', (el) =>
+        el.textContent.trim(),
+      );
+      const imageElement = await page.$('.end_photo_org img');
+      const photo = imageElement
+        ? await page.evaluate((img) => img.src, imageElement)
+        : null;
+      const date = await page.$eval('.date', (el) => el.textContent.trim());
 
-    //   const existingArticle = await this.articleModel.findOne({ title });
-    //   if (!existingArticle) {
-    //     const articleDto = new CreateArticleDto();
-    //     articleDto.title = title;
-    //     articleDto.url = articleLink;
-    //     articleDto.content = content;
-    //     articleDto.author = author;
-    //     articleDto.date = date;
-    //     articleDto.photo = photo;
-    //     articleDto.category = 'Entertainment';
-    //     await this.create(articleDto);
-    //   }
-    // }
+      const existingArticle = await this.articleModel.findOne({ title });
+      if (existingArticle) {
+        const articleDto = new CreateArticleDto();
+        articleDto.title = title;
+        articleDto.url = articleLink;
+        articleDto.content = content;
+        articleDto.author = author;
+        articleDto.date = date;
+        articleDto.photo = photo;
+        articleDto.category = 'Entertainment';
+        await this.create(articleDto);
+      }
+    }
 
     const sportsUrl = 'https://sports.news.naver.com/index';
     await page.goto(sportsUrl, { waitUntil: 'networkidle0' });
@@ -227,20 +227,20 @@ export class ArticleService {
     // }
 
     const newsUrls = {
-      // Politics: 'https://news.naver.com/section/100',
-      // Economy: 'https://news.naver.com/section/101',
-      // Society: 'https://news.naver.com/section/102',
+      Politics: 'https://news.naver.com/section/100',
+      Economy: 'https://news.naver.com/section/101',
+      Society: 'https://news.naver.com/section/102',
       Culture: 'https://news.naver.com/section/103',
       Science: 'https://news.naver.com/section/105',
       World: 'https://news.naver.com/section/104',
     };
-    for (const category in newsUrls) {
+    // for (const category in newsUrls) {
       // 연예, 스포츠외 다른 카테고리 기사 크롤링
-      const articleLinks = await this.fetchArticleLinks(newsUrls[category]);
-      for (const articleLink of articleLinks) {
-        await this.fetchArticleDetails(articleLink, category);
-      }
-    }
+    //  const articleLinks = await this.fetchArticleLinks(newsUrls[category]);
+    //  for (const articleLink of articleLinks) {
+    //    await this.fetchArticleDetails(articleLink, category);
+    //  }
+    // }
 
     // return headlines;
   }
@@ -251,11 +251,11 @@ export class ArticleService {
 
     const randomArticles = await this.articleModel
       .aggregate([
-        {
-          $match: {
-            createdAt: { $gte: yesterdayStart, $lt: todayStart },
-          },
-        },
+        // {
+        //   $match: {
+        //     createdAt: { $gte: yesterdayStart, $lt: todayStart },
+        //   },
+        // },
         {
           $group: {
             _id: '$category',
@@ -288,12 +288,14 @@ export class ArticleService {
       // randomArticle의 sumamry를 GPT로 생성한 대사로 업데이트
       const openAiService = new OpenAiService(new ConfigService()); // OpenAiService 인스턴스화
       for (const article of randomArticles) {
+        console.log(article.randomArticle.content);
         const prompt = PROMPT_SUMMARIZE_TEMPLATE.replace(
           '{content}',
           article.randomArticle.content,
         );
         const speech = await openAiService.generateText(prompt); // GPT-3를 사용하여 대사 생성
-        article.summary = speech; // 생성된 대사로 기사 요약 업데이트
+        console.log("speech is", speech);
+        article.randomArticle.summary = speech; // 생성된 대사로 기사 요약 업데이트
         await this.articleModel
           .findByIdAndUpdate(
             { _id: article.randomArticle._id },

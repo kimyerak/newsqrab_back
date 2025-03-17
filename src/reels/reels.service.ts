@@ -208,6 +208,7 @@ export class ReelsService {
     }
     const sortedComments = reel.comments.sort((a, b) => b.likes - a.likes);
     return sortedComments.map((comment) => ({
+      _id: comment._id,
       userId: comment.userId,
       nickname: comment.nickname,
       profilePicture: comment.profilePicture,

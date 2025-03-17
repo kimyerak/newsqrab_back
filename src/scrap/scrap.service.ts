@@ -36,6 +36,7 @@ export class ScrapService {
     // } else {
     //   scrap.followerEmojis.push(followerEmoji);
     // }
+
     scrap.followerEmojis.push(followerEmoji);
     return scrap.save();
   }
@@ -77,5 +78,6 @@ export class ScrapService {
       ])
       .exec();
   }
+
   // Additional methods for CRUD operations can be added here
 }

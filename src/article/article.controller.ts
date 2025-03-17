@@ -29,6 +29,23 @@ export class ArticleController {
     return this.articleService.create(createArticleDto);
   }
 
+  @Get(':id')
+  @ApiOperation({ summary: 'Get a specific article by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'The article details',
+    type: Article,
+  })
+  @ApiResponse({ status: 404, description: 'Article not found.' })
+  async getById(@Param('id') id: string): Promise<Article> {
+    console.log('Controller: Get article by ID:', id);
+    const article = await this.articleService.findById(id);
+    if (!article) {
+      throw new NotFoundException('Article not found');
+    }
+    return article;
+  }
+
   @Put(':id')
   @ApiOperation({ summary: 'Update article summary and category' })
   @ApiResponse({
@@ -55,7 +72,9 @@ export class ArticleController {
   getAll(): Promise<Article[]> {
     return this.articleService.findAll();
   }
-  @Get(':category')
+
+
+  @Get('category/:category')
   @ApiOperation({ summary: '탭3 - 버튼 누르면 카테고리에 맞게 불러오기' })
   @ApiResponse({
     status: 200,
@@ -64,20 +83,5 @@ export class ArticleController {
   })
   getByCategory(@Param('category') category: string): Promise<Article[]> {
     return this.articleService.findByCategory(category);
-  }
-  @Get(':id')
-  @ApiOperation({ summary: 'Get a specific article by ID' })
-  @ApiResponse({
-    status: 200,
-    description: 'The article details',
-    type: Article,
-  })
-  @ApiResponse({ status: 404, description: 'Article not found.' })
-  async getById(@Param('id') id: string): Promise<Article> {
-    const article = await this.articleService.findById(id);
-    if (!article) {
-      throw new NotFoundException('Article not found');
-    }
-    return article;
   }
 }
