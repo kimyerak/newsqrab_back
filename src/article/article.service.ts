@@ -11,6 +11,7 @@ import { PROMPT_SUMMARIZE_TEMPLATE } from '../openai/prompts/prompt_article';
 
 import * as moment from 'moment';
 import puppeteer from 'puppeteer';
+import axios from 'axios';
 
 @Injectable()
 export class ArticleService {
@@ -59,7 +60,7 @@ export class ArticleService {
 
   async fetchArticleLinks(url: string): Promise<string[]> {
     const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: 'networkidle0' });
@@ -83,18 +84,21 @@ export class ArticleService {
     articleCategory: string,
   ): Promise<void> {
     const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
     const page = await browser.newPage();
     console.log(articleUrl);
     await page.goto(articleUrl, {
       waitUntil: 'domcontentloaded',
-      timeout: 1000,
+      timeout: 100000,
     });
 
     // 시뮬레이션할 클릭 이벤트가 있다면 실행
     try {
-      await page.waitForSelector('[data-clk="rpt.back"]', { visible: true, timeout: 1500 });
+      await page.waitForSelector('[data-clk="rpt.back"]', {
+        visible: true,
+        timeout: 1500,
+      });
       await page.click('[data-clk="rpt.back"]');
     } catch (e) {
       console.log('No pop-up');
@@ -105,15 +109,17 @@ export class ArticleService {
     );
 
     const hasauthor = await page.$('.byline');
-    const author = hasauthor ? await page.$eval('.byline', (el) => el.textContent.trim()) : 'newsqrab';
+    const author = hasauthor
+      ? await page.$eval('.byline', (el) => el.textContent.trim())
+      : 'newsqrab';
     const content = await page.$eval('#newsct_article', (el) =>
       el.textContent.trim(),
     );
 
     const imageElement = await page.$('.end_photo_org img');
-      const photo = imageElement
-        ? await page.evaluate((img) => img.src, imageElement)
-        : null;
+    const photo = imageElement
+      ? await page.evaluate((img) => img.src, imageElement)
+      : null;
     const date = await page.$eval('.media_end_head_info_datestamp_time', (el) =>
       el.textContent.trim(),
     );
@@ -139,19 +145,19 @@ export class ArticleService {
   async fetchNews(): Promise<void> {
     console.log('Fetching news...');
     const entertainmentUrl = 'https://entertain.naver.com/now';
-    console.log("here1");
-    const browser = await puppeteer.launch(
-      {args: ['--no-sandbox', '--disable-setuid-sandbox']}
-    );
-    console.log("here2");
+    console.log('here1');
+    const browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
+    console.log('here2');
     const page = await browser.newPage();
-    console.log("here3");
+    console.log('here3');
     await page.goto(entertainmentUrl, { waitUntil: 'networkidle0' });
-    console.log("here4");
+    console.log('here4');
     const entertainmentArticleLinks = await page.$$eval('.rank_lst a', (el) =>
       el.map((a) => a.href),
     );
-    console.log("here5");
+    console.log('here5');
     for (const articleLink of entertainmentArticleLinks) {
       console.log(articleLink);
       await page.goto(articleLink, { waitUntil: 'networkidle0' });
@@ -159,8 +165,9 @@ export class ArticleService {
         '.NewsEndMain_article_title__kqEzS',
         (el) => el.textContent.trim(),
       );
-      const author = await page.$eval('.NewsEndMain_article_journalist_info__Cdr3D', (el) =>
-        el.textContent.trim(),
+      const author = await page.$eval(
+        '.NewsEndMain_article_journalist_info__Cdr3D',
+        (el) => el.textContent.trim(),
       );
       const content = await page.$eval('._article_content', (el) =>
         el.textContent.trim(),
@@ -172,7 +179,7 @@ export class ArticleService {
       const date = await page.$eval('.date', (el) => el.textContent.trim());
 
       const existingArticle = await this.articleModel.findOne({ title });
-      if (existingArticle) {
+      if (!existingArticle) {
         const articleDto = new CreateArticleDto();
         articleDto.title = title;
         articleDto.url = articleLink;
@@ -235,11 +242,11 @@ export class ArticleService {
       World: 'https://news.naver.com/section/104',
     };
     // for (const category in newsUrls) {
-      // 연예, 스포츠외 다른 카테고리 기사 크롤링
-    //  const articleLinks = await this.fetchArticleLinks(newsUrls[category]);
-    //  for (const articleLink of articleLinks) {
-    //    await this.fetchArticleDetails(articleLink, category);
-    //  }
+    //   //연예, 스포츠외 다른 카테고리 기사 크롤링
+    //   const articleLinks = await this.fetchArticleLinks(newsUrls[category]);
+    //   for (const articleLink of articleLinks) {
+    //     await this.fetchArticleDetails(articleLink, category);
+    //   }
     // }
 
     // return headlines;
@@ -284,29 +291,60 @@ export class ArticleService {
         'No articles found from yesterday in any category.',
       );
     } else {
-      // GPT에게 대사 만들어달라고 하기
-      // randomArticle의 sumamry를 GPT로 생성한 대사로 업데이트
-      const openAiService = new OpenAiService(new ConfigService()); // OpenAiService 인스턴스화
-      for (const article of randomArticles) {
-        console.log(article.randomArticle.content);
-        const prompt = PROMPT_SUMMARIZE_TEMPLATE.replace(
-          '{content}',
-          article.randomArticle.content,
+      // Python 서버 주소
+      const ragServerUrl = 'http://localhost:8000/rag';
+
+      // Python 서버로 데이터 전달을 위한 배열 생성
+      const articleData = {
+        content: randomArticles
+          .map((article) => article.randomArticle.content)
+          .join('\n'),
+      };
+      const puppeteer = require('puppeteer');
+
+      (async () => {
+        const url =
+          'https://namu.wiki/w/%EC%96%B8%EB%A1%A0%20%EA%B4%80%EB%A0%A8%20%EC%A0%95%EB%B3%B4';
+        const browser = await puppeteer.launch({
+          args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        });
+        const page = await browser.newPage();
+        await page.goto(url, { waitUntil: 'networkidle0' });
+
+        // 페이지 내 모든 <a> 태그의 href 추출
+        const links = await page.$$eval('a', (anchors) =>
+          anchors.map((a) => a.href),
         );
-        const speech = await openAiService.generateText(prompt); // GPT-3를 사용하여 대사 생성
-        console.log("speech is", speech);
-        article.randomArticle.summary = speech; // 생성된 대사로 기사 요약 업데이트
-        await this.articleModel
-          .findByIdAndUpdate(
-            { _id: article.randomArticle._id },
-            { summary: speech },
-          )
-          .exec(); // DB에 업데이트
-        await this.reelsService.createReelFromArticle(article.randomArticle);
+        console.log('추출된 링크들:');
+        console.log(links);
+
+        await browser.close();
+      })();
+
+      try {
+        // Python 서버로 요청을 보냄
+        const response = await axios.post(ragServerUrl, articleData);
+        console.log('📦 응답 데이터 확인:', response.data);
+
+        // 응답 받은 요약 데이터 업데이트
+        const summaries = response.data;
+
+        for (let i = 0; i < randomArticles.length; i++) {
+          const articleId = randomArticles[i].randomArticle._id;
+          const summary = summaries[i];
+
+          await this.articleModel
+            .findByIdAndUpdate(articleId, { summary })
+            .exec();
+          await this.reelsService.createReelFromArticle(
+            randomArticles[i].randomArticle,
+          );
+        }
+      } catch (error) {
+        console.error('Error calling RAG server:', error);
+        throw new Error('Failed to get summary from RAG server');
       }
     }
-
-    // return randomArticles;
   }
 
   async updateArticleSummary(
