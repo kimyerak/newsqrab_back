@@ -59,7 +59,7 @@ export class ArticleService {
 
   async fetchArticleLinks(url: string): Promise<string[]> {
     const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: 'networkidle0' });
@@ -83,7 +83,7 @@ export class ArticleService {
     articleCategory: string,
   ): Promise<void> {
     const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
     const page = await browser.newPage();
     console.log(articleUrl);
@@ -94,7 +94,10 @@ export class ArticleService {
 
     // 시뮬레이션할 클릭 이벤트가 있다면 실행
     try {
-      await page.waitForSelector('[data-clk="rpt.back"]', { visible: true, timeout: 1500 });
+      await page.waitForSelector('[data-clk="rpt.back"]', {
+        visible: true,
+        timeout: 1500,
+      });
       await page.click('[data-clk="rpt.back"]');
     } catch (e) {
       console.log('No pop-up');
@@ -105,15 +108,17 @@ export class ArticleService {
     );
 
     const hasauthor = await page.$('.byline');
-    const author = hasauthor ? await page.$eval('.byline', (el) => el.textContent.trim()) : 'newsqrab';
+    const author = hasauthor
+      ? await page.$eval('.byline', (el) => el.textContent.trim())
+      : 'newsqrab';
     const content = await page.$eval('#newsct_article', (el) =>
       el.textContent.trim(),
     );
 
     const imageElement = await page.$('.end_photo_org img');
-      const photo = imageElement
-        ? await page.evaluate((img) => img.src, imageElement)
-        : null;
+    const photo = imageElement
+      ? await page.evaluate((img) => img.src, imageElement)
+      : null;
     const date = await page.$eval('.media_end_head_info_datestamp_time', (el) =>
       el.textContent.trim(),
     );
@@ -139,19 +144,19 @@ export class ArticleService {
   async fetchNews(): Promise<void> {
     console.log('Fetching news...');
     const entertainmentUrl = 'https://entertain.naver.com/now';
-    console.log("here1");
-    const browser = await puppeteer.launch(
-      {args: ['--no-sandbox', '--disable-setuid-sandbox']}
-    );
-    console.log("here2");
+    console.log('here1');
+    const browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
+    console.log('here2');
     const page = await browser.newPage();
-    console.log("here3");
+    console.log('here3');
     await page.goto(entertainmentUrl, { waitUntil: 'networkidle0' });
-    console.log("here4");
+    console.log('here4');
     const entertainmentArticleLinks = await page.$$eval('.rank_lst a', (el) =>
       el.map((a) => a.href),
     );
-    console.log("here5");
+    console.log('here5');
     for (const articleLink of entertainmentArticleLinks) {
       console.log(articleLink);
       await page.goto(articleLink, { waitUntil: 'networkidle0' });
@@ -159,8 +164,9 @@ export class ArticleService {
         '.NewsEndMain_article_title__kqEzS',
         (el) => el.textContent.trim(),
       );
-      const author = await page.$eval('.NewsEndMain_article_journalist_info__Cdr3D', (el) =>
-        el.textContent.trim(),
+      const author = await page.$eval(
+        '.NewsEndMain_article_journalist_info__Cdr3D',
+        (el) => el.textContent.trim(),
       );
       const content = await page.$eval('._article_content', (el) =>
         el.textContent.trim(),
@@ -235,7 +241,7 @@ export class ArticleService {
       World: 'https://news.naver.com/section/104',
     };
     // for (const category in newsUrls) {
-      // 연예, 스포츠외 다른 카테고리 기사 크롤링
+    // 연예, 스포츠외 다른 카테고리 기사 크롤링
     //  const articleLinks = await this.fetchArticleLinks(newsUrls[category]);
     //  for (const articleLink of articleLinks) {
     //    await this.fetchArticleDetails(articleLink, category);
@@ -294,7 +300,7 @@ export class ArticleService {
           article.randomArticle.content,
         );
         const speech = await openAiService.generateText(prompt); // GPT-3를 사용하여 대사 생성
-        console.log("speech is", speech);
+        console.log('speech is', speech);
         article.randomArticle.summary = speech; // 생성된 대사로 기사 요약 업데이트
         await this.articleModel
           .findByIdAndUpdate(
