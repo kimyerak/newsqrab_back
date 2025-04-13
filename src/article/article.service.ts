@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Article } from './article.schema';
 import { CreateArticleDto } from './dto/create-article.dto';
+import { crawlNaverNewsContent } from '../utils/naver-crawler';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { OpenAiService } from '../openai/openai.service';
 import { ConfigService } from '@nestjs/config';
@@ -20,9 +21,11 @@ export class ArticleService {
   ) {}
 
   async create(createArticleDto: CreateArticleDto): Promise<Article> {
+    const { url } = createArticleDto;
+    const content = await crawlNaverNewsContent(createArticleDto.url);
     const newArticle = new this.articleModel({
-      ...createArticleDto,
-      content: '기사 내용은 준비 중입니다.',
+      url,
+      content,
       createdBy: 'admin',
     }
     );
