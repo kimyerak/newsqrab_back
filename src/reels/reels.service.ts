@@ -60,6 +60,7 @@ export class ReelsService {
       .exec();
   }
 
+  //이제 얜 필요없어질거임! createReelFromConversation이 얘를 대신할거!
   async createReelFromArticle(article: Article): Promise<void> {
     // console.log('l', article.category);
     const createReelsDto = new CreateReelsDto();

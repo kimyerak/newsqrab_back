@@ -8,7 +8,7 @@ import { OpenAiService } from '../openai/openai.service';
 import { ConfigService } from '@nestjs/config';
 import { ReelsService } from '../reels/reels.service';
 import { PROMPT_SUMMARIZE_TEMPLATE } from '../openai/prompts/prompt_article';
-
+import { ConversationService } from '../conversation/conversation.service';
 import * as moment from 'moment';
 import puppeteer from 'puppeteer';
 
@@ -17,6 +17,7 @@ export class ArticleService {
   constructor(
     @InjectModel(Article.name) private articleModel: Model<Article>,
     private reelsService: ReelsService,
+    private conversationService: ConversationService,
   ) {}
 
   async create(createArticleDto: CreateArticleDto): Promise<Article> {
@@ -329,5 +330,11 @@ export class ArticleService {
     return updatedArticle;
   }
 
-  // 필요한 다른 메서드들 (find, remove 등) 추가 가능
+  // 예락 4.14
+  async generateConversationFromRandomArticles(): Promise<void> {
+    const articles = await this.articleModel.find().exec(); // 또는 최신 것만
+    for (const article of articles) {
+      await this.conversationService.generateConversationFromArticle(article);
+    }
+  }
 }
