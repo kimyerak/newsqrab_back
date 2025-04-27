@@ -11,13 +11,15 @@ import { ScrapModule } from './scrap/scrap.module';
 import { OpenAiService } from './openai/openai.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { S3Module } from './s3/s3.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true, // 전역으로 사용
+    isGlobal: true, // 전역으로 사용
     }),
     MongooseModule.forRoot('mongodb://127.0.0.1:27017/newsqrab'),
+    AuthModule,
     UserModule,
     ArticleModule,
     ReelsModule,
