@@ -33,6 +33,4 @@ export class Reels extends Document {
   @Prop({ default: Date.now })
   updatedAt: Date;
 }
-}
-
 export const ReelsSchema = SchemaFactory.createForClass(Reels);

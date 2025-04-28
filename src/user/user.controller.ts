@@ -1,3 +1,40 @@
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Get,
+  Request,
+  Patch,
+} from '@nestjs/common';
+import { UserService } from './user.service';
+import { CreateUserDto } from './dto/create-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
+
+@Controller('api/users')
+export class UserController {
+  constructor(private readonly userService: UserService) {}
+
+  @Post('register')
+  register(@Body() createUserDto: CreateUserDto) {
+    return this.userService.register(createUserDto);
+  }
+
+  @Post('login')
+  async login(@Body() loginUserDto: LoginUserDto) {
+    return this.userService.login(loginUserDto);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Patch('me')
+  update(@Request() req, @Body() updateUserDto: UpdateUserDto) {
+    return this.userService.update(req.user.userId, updateUserDto);
+  }
+}
 // import {
 //   Controller,
 //   Post,
@@ -15,7 +52,7 @@
 // import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 // import { UserService } from './user.service';
 // import { CreateUserDto, CreateUserResponseDto } from './dto/create-user.dto';
-// import { LoginDto, LoginResponseDto } from './dto/login.dto';
+// import { LoginDto, LoginResponseDto } from './dto/login-user.dto';
 // import { UpdateUserProfileDto } from './dto/update-user.dto';
 // import { UserResponseDto } from './dto/user-response.dto';
 // import { FileInterceptor } from '@nestjs/platform-express';
@@ -210,28 +247,3 @@
 //     return { message: 'Scrap removed successfully.' };
 //   }
 // }
-// ✅ src/user/user.controller.ts
-import { Controller, Post, Body } from '@nestjs/common';
-import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { LoginUserDto } from './dto/login-user.dto';
-import { User } from './user.schema';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
-
-@ApiTags('user')
-@Controller('user')
-export class UserController {
-  constructor(private readonly userService: UserService) {}
-
-  @Post('signup')
-  @ApiOperation({ summary: '회원가입' })
-  createUser(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return this.userService.createUser(createUserDto);
-  }
-
-  @Post('login')
-  @ApiOperation({ summary: '로그인' })
-  loginUser(@Body() loginUserDto: LoginUserDto): Promise<User> {
-    return this.userService.loginUser(loginUserDto);
-  }
-}

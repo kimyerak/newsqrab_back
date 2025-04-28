@@ -23,13 +23,14 @@ async function bootstrap() {
     .setTitle('API for NewsQrab')
     .setDescription('The API description')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document); // Swagger 문서 URL을 '/api'로 설정
   await app.listen(3000);
 
-  console.log('Running a task every midnight');
-  await articleService.fetchNews();
-  articleService.findReelsArticle();
+  // console.log('Running a task every midnight');
+  // await articleService.fetchNews();
+  // articleService.findReelsArticle();
 }
 bootstrap();

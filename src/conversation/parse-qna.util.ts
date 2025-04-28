@@ -9,10 +9,10 @@ export function parseQnAScript(
   const script = [];
 
   for (const line of lines) {
-    if (line.startsWith('크랩이:')) {
-      script.push({ user1: line.replace('크랩이:', '').trim() });
-    } else if (line.startsWith('킹크랩:')) {
-      script.push({ user2: line.replace('킹크랩:', '').trim() });
+    if (line.startsWith('user1:')) {
+      script.push({ user1: line.replace('user1:', '').trim() });
+    } else if (line.startsWith('user2:')) {
+      script.push({ user2: line.replace('user2:', '').trim() });
     }
   }
   return script;

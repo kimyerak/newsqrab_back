@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Conversation, ConversationSchema } from './conversation.schema';
 import { ConversationService } from './conversation.service';
 import { ConversationController } from './conversatio.controller';
+import { OpenAiService } from '../openai/openai.service';
 
 @Module({
   imports: [
@@ -12,7 +13,7 @@ import { ConversationController } from './conversatio.controller';
     ]),
   ],
   controllers: [ConversationController],
-  providers: [ConversationService],
+  providers: [ConversationService, OpenAiService],
   exports: [ConversationService], // 다른 모듈에서 사용하려고 export
 })
 export class ConversationModule {}

@@ -22,7 +22,7 @@ export class ArticleController {
   getHotArticles() {
     return this.articleService.getHotArticles();
   }
-  
+
   @Post()
   create(@Body() createArticleDto: CreateArticleDto) {
     return this.articleService.create(createArticleDto);
@@ -31,6 +31,12 @@ export class ArticleController {
   @Get(':id')
   IncreaseViews(@Param('id') id: string) {
     return this.articleService.IncreaseViews(id);
+  }
+
+  // ✅ [예락 - 추가] 특정 Article로 Conversation 생성하는 API
+  @Get(':id/generate-conversation')
+  async generateConversation(@Param('id') id: string) {
+    return this.articleService.generateConversationFromArticle(id);
   }
   // @Post()
   // @ApiOperation({ summary: '프론트에서 쓸일 x. Create a new article' })
@@ -86,7 +92,6 @@ export class ArticleController {
   // getAll(): Promise<Article[]> {
   //   return this.articleService.findAll();
   // }
-
 
   // @Get('category/:category')
   // @ApiOperation({ summary: '탭3 - 버튼 누르면 카테고리에 맞게 불러오기' })
