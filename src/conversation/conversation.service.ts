@@ -1,5 +1,5 @@
 // ✅ conversation.service.ts
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Conversation } from './conversation.schema';
@@ -27,5 +27,12 @@ export class ConversationService {
 
     await this.conversationModel.create({ script });
     console.log('[✅ Conversation 새로 저장 완료!]');
+  }
+  async findById(id: string): Promise<Conversation> {
+    const conversation = await this.conversationModel.findById(id).exec();
+    if (!conversation) {
+      throw new NotFoundException('Conversation not found');
+    }
+    return conversation;
   }
 }

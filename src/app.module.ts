@@ -18,9 +18,7 @@ import { ConversationModule } from './conversation/conversation.module';
     ConfigModule.forRoot({
       isGlobal: true, // 전역으로 사용
     }),
-    MongooseModule.forRoot(
-      'mongodb://newuser:0000@localhost:27017/newsqrab?authSource=newsqrab',
-    ),
+    MongooseModule.forRoot('mongodb://localhost:27017/newsqrab'),
     UserModule,
     ArticleModule,
     ReelsModule,
