@@ -9,6 +9,7 @@ import { OpenAiService } from '../openai/openai.service';
 import { ConfigService } from '@nestjs/config';
 import { ReelsService } from '../reels/reels.service';
 import { PROMPT_SUMMARIZE_TEMPLATE } from '../openai/prompts/prompt_article';
+import { ConversationService } from '../conversation/conversation.service'; // 이미 import 했겠지
 
 import * as moment from 'moment';
 import puppeteer from 'puppeteer';
@@ -17,7 +18,8 @@ import puppeteer from 'puppeteer';
 export class ArticleService {
   constructor(
     @InjectModel(Article.name) private articleModel: Model<Article>,
-    // private reelsService: ReelsService,
+    private readonly reelsService: ReelsService,
+    private readonly conversationService: ConversationService,
   ) {}
 
   async create(createArticleDto: CreateArticleDto): Promise<Article> {
@@ -27,8 +29,7 @@ export class ArticleService {
       url,
       content,
       createdBy: 'admin',
-    }
-    );
+    });
     return newArticle.save();
   }
 
@@ -42,6 +43,17 @@ export class ArticleService {
 
   async getHotArticles(): Promise<Article[]> {
     return this.articleModel.find().sort({ views: -1 }).limit(5).exec();
+  }
+
+  // ✅ [추가] 특정 Article로 Conversation 생성하는 함수
+  async generateConversationFromArticle(articleId: string): Promise<void> {
+    const article = await this.articleModel.findById(articleId).exec();
+    if (!article) {
+      throw new NotFoundException('Article not found');
+    }
+    await this.conversationService.generateConversationFromContent(
+      article.content,
+    );
   }
   // async update(
   //   id: string,

@@ -9,13 +9,13 @@ import { Article } from '../article/article.schema';
 import { S3Service } from '../s3/s3.service';
 import { Readable } from 'stream';
 import { merge } from 'cheerio/lib/static';
+
 const fs = require('fs');
 const axios = require('axios');
 import * as path from 'path';
 const qs = require('qs');
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
-import { CommentDto } from './dto/comment.dto';
 @Injectable()
 export class ReelsService {
   constructor(
@@ -60,25 +60,44 @@ export class ReelsService {
       .exec();
   }
 
-  async createReelFromArticle(article: Article): Promise<void> {
-    // console.log('l', article.category);
-    const createReelsDto = new CreateReelsDto();
-    createReelsDto.owner = 'newsqrap';
-    createReelsDto.articleId = [article._id as Types.ObjectId];
-    createReelsDto.speak = await this.createAudioFromText(
-      article.summary,
-      createReelsDto.articleId,
-    ); // tts mp3 파일의 object storage url
-    createReelsDto.category = article.category;
-    const reelsPath = await this.mergeVideoAndAudio(
-      article.category,
-      createReelsDto.articleId,
-    );
-    const reelsUrl = await this.uploadFileToStorage(reelsPath);
-    createReelsDto.video = reelsUrl;
-    const newReels = new this.reelsModel(createReelsDto);
-    await newReels.save();
+  async findById(id: string): Promise<Reels> {
+    const reels = await this.reelsModel.findById(id).exec();
+    if (!reels) throw new NotFoundException('Reels not found');
+    return reels;
   }
+
+  async findByOwner(owner: string): Promise<Reels[]> {
+    return this.reelsModel.find({ owner }).exec();
+  }
+
+  async incrementViews(id: string): Promise<void> {
+    await this.reelsModel.findByIdAndUpdate(id, { $inc: { views: 1 } }).exec();
+  }
+
+  async getReelsSortedByViews(): Promise<Reels[]> {
+    return this.reelsModel.find().sort({ views: -1 }).exec();
+  }
+
+  // //이제 얜 필요없어질거임! createReelFromConversation이 얘를 대신할거!
+  // async createReelFromArticle(article: Article): Promise<void> {
+  //   // console.log('l', article.category);
+  //   const createReelsDto = new CreateReelsDto();
+  //   createReelsDto.owner = 'newsqrap';
+  //   createReelsDto.articleId = [article._id as Types.ObjectId];
+  //   createReelsDto.speak = await this.createAudioFromText(
+  //     article.summary,
+  //     createReelsDto.articleId,
+  //   ); // tts mp3 파일의 object storage url
+  //   createReelsDto.category = article.category;
+  //   const reelsPath = await this.mergeVideoAndAudio(
+  //     article.category,
+  //     createReelsDto.articleId,
+  //   );
+  //   const reelsUrl = await this.uploadFileToStorage(reelsPath);
+  //   createReelsDto.video = reelsUrl;
+  //   const newReels = new this.reelsModel(createReelsDto);
+  //   await newReels.save();
+  // }
 
   async createAudioFromText(
     summary: string,
@@ -190,57 +209,5 @@ export class ReelsService {
       // throw new Error('File upload failed.');
       return 'default-path.mp3';
     }
-  }
-  async findByOwner(owner: string): Promise<Reels[]> {
-    let reels = await this.reelsModel.find({ owner }).exec();
-    if (!reels || reels.length === 0) {
-      console.log(
-        `No reels found for owner '${owner}'. Displaying default reels for 'newsqrap'.`,
-      );
-      reels = await this.reelsModel.find({ owner: 'newsqrap' }).exec();
-    }
-    return reels;
-  }
-  async getCommentsSorted(reelId: string): Promise<CommentDto[]> {
-    const reel = await this.reelsModel.findById(reelId).exec();
-    if (!reel) {
-      throw new NotFoundException('Reel not found');
-    }
-    const sortedComments = reel.comments.sort((a, b) => b.likes - a.likes);
-    return sortedComments.map((comment) => ({
-      _id: comment._id,
-      userId: comment.userId,
-      nickname: comment.nickname,
-      profilePicture: comment.profilePicture,
-      content: comment.content,
-      likes: comment.likes,
-    }));
-  }
-
-  async addComment(reelId: string, commentDto: CommentDto): Promise<Reels> {
-    const reel = await this.reelsModel.findById(reelId).exec();
-    if (!reel) {
-      throw new NotFoundException('Reel not found');
-    }
-    reel.comments.push(commentDto);
-    return reel.save();
-  }
-
-  async likeComment(reelId: string, commentId: string): Promise<Reels> {
-    const reel = await this.reelsModel.findById(reelId).exec();
-    if (!reel) {
-      throw new NotFoundException('Reel not found');
-    }
-
-    // commentId를 ObjectId로 변환
-    const objectId = new Types.ObjectId(commentId);
-
-    // 서브도큐먼트의 id로 찾기
-    const comment = reel.comments.id(objectId);
-    if (!comment) {
-      throw new NotFoundException('Comment not found');
-    }
-    comment.likes += 1;
-    return reel.save();
   }
 }

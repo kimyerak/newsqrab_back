@@ -27,12 +27,17 @@ export class UserService {
   }
 
   async login(loginUserDto: LoginUserDto): Promise<{ accessToken: string }> {
-    const user = await this.userModel.findOne({ username: loginUserDto.username });
+    const user = await this.userModel.findOne({
+      username: loginUserDto.username,
+    });
     if (!user) {
       throw new Error('존재하지 않는 사용자입니다.');
     }
 
-    const isPasswordValid = await bcrypt.compare(loginUserDto.password, user.password);
+    const isPasswordValid = await bcrypt.compare(
+      loginUserDto.password,
+      user.password,
+    );
     if (!isPasswordValid) {
       throw new Error('비밀번호가 일치하지 않습니다.');
     }
@@ -53,8 +58,6 @@ export class UserService {
     return this.userModel.findByIdAndUpdate(userId, updateData, { new: true });
   }
 }
-
-
 
 // import {
 //   Injectable
