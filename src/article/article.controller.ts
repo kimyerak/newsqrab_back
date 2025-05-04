@@ -38,6 +38,11 @@ export class ArticleController {
   async generateConversation(@Param('id') id: string) {
     return this.articleService.generateConversationFromArticle(id);
   }
+
+  @Get(':id/content')
+  getArticleContent(@Param('id') id:string) {
+    return this.articleService.getArticleContent(id);
+  }
   // @Post()
   // @ApiOperation({ summary: '프론트에서 쓸일 x. Create a new article' })
   // @ApiResponse({
