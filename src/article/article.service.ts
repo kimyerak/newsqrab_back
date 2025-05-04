@@ -39,12 +39,19 @@ export class ArticleService {
 
     // 2) RAG 서버 호출
     let summary = '';
+    let sources = '';
     try {
-      const resp = await axios.post<{ summary: string }>(this.ragServerUrl, {
-        content,
-      });
+      // 1) resp 타입에 sources 명시
+      const resp = await axios.post<{
+        summary: string;
+        sources: any[]; // 혹은 정확한 타입을 명시하세요
+      }>(this.ragServerUrl, { content });
+
       summary = resp.data.summary;
-      this.logger.log(`Received summary for ${url}`);
+      const sources = resp.data.sources;
+
+      this.logger.log(`Summary: ${summary}`);
+      this.logger.log(`Sources: ${JSON.stringify(sources, null, 2)}`);
     } catch (err) {
       this.logger.error('❌ RAG 서버 호출 실패', err);
       // 필요하다면 throw new Error(...) 해도 됩니다.
