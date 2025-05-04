@@ -98,29 +98,29 @@ export class ScrapController {
     return this.scrapService.findScrapsByUserNickname(usernickname);
   }
 
-  @Get('following/:userId')
-  @ApiOperation({ summary: '탭1- Get scraps from users you are following' })
-  @ApiResponse({
-    status: 200,
-    description:
-      'List of scraps from users the specified user is following, sorted by date.',
-    type: [CreateScrapDto],
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'User not found or user is not following anyone.',
-  })
-  @ApiParam({ name: 'userId', description: 'ID of the user', type: String })
-  async getScrapsByFollowing(
-    @Param('userId') userId: string,
-  ): Promise<Scrap[]> {
-    const following = await this.userService.getFollowing(userId);
-    if (!following || following.length === 0) {
-      throw new NotFoundException(
-        'User not found or user is not following anyone.',
-      );
-    }
-    const followingIds = following.map((user) => user._id.toString());
-    return this.scrapService.findByUserIds(followingIds);
-  }
+  // @Get('following/:userId')
+  // @ApiOperation({ summary: '탭1- Get scraps from users you are following' })
+  // @ApiResponse({
+  //   status: 200,
+  //   description:
+  //     'List of scraps from users the specified user is following, sorted by date.',
+  //   type: [CreateScrapDto],
+  // })
+  // @ApiResponse({
+  //   status: 404,
+  //   description: 'User not found or user is not following anyone.',
+  // })
+  // @ApiParam({ name: 'userId', description: 'ID of the user', type: String })
+  // async getScrapsByFollowing(
+  //   @Param('userId') userId: string,
+  // ): Promise<Scrap[]> {
+  //   const following = await this.userService.getFollowing(userId);
+  //   if (!following || following.length === 0) {
+  //     throw new NotFoundException(
+  //       'User not found or user is not following anyone.',
+  //     );
+  //   }
+  //   const followingIds = following.map((user) => user._id.toString());
+  //   return this.scrapService.findByUserIds(followingIds);
+  // }
 }

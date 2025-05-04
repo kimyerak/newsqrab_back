@@ -18,7 +18,7 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Swagger 설정
+  // Swagger 설정3
   const config = new DocumentBuilder()
     .setTitle('API for NewsQrab')
     .setDescription('The API description')
@@ -29,8 +29,8 @@ async function bootstrap() {
   await app.listen(3000);
 
   // console.log('Running a task every midnight');
-  await articleService.fetchNews();
-  articleService.findReelsArticle();
+  // await articleService.fetchNews();
+  // articleService.findReelsArticle();
   // await app.listen(3000);
 }
 bootstrap();
