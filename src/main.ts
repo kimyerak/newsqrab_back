@@ -29,8 +29,8 @@ async function bootstrap() {
   await app.listen(3000);
 
   // console.log('Running a task every midnight');
-  await articleService.fetchNews();
-  articleService.findReelsArticle();
+  // await articleService.fetchNews();
+  // articleService.findReelsArticle();
   // await app.listen(3000);
 }
 bootstrap();

@@ -4,7 +4,6 @@ import { CreateReelsDto } from './dto/create-reels.dto';
 import { UpdateReelsDto } from './dto/update-reels.dto';
 import { Reels } from './reels.schema';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CommentDto } from './dto/comment.dto';
 @ApiTags('reels')
 @Controller('reels')
 export class ReelsController {
@@ -65,43 +64,15 @@ export class ReelsController {
   getByOwner(@Param('owner') owner: string): Promise<Reels[]> {
     return this.reelsService.findByOwner(owner);
   }
-
-  @Get(':id/comments/sorted')
-  @ApiOperation({ summary: 'Get comments sorted by likes' })
-  @ApiResponse({
-    status: 200,
-    description: 'Comments sorted by likes.',
-    type: [CommentDto],
-  })
-  async getCommentsSorted(@Param('id') id: string): Promise<CommentDto[]> {
-    return this.reelsService.getCommentsSorted(id);
+  // 🔥 추가: 조회수 높은 순으로 정렬해서 가져오기
+  @Get('sorted/views')
+  @ApiOperation({ summary: 'Get reels sorted by views (highest first)' })
+  @ApiResponse({ status: 200, type: [Reels] })
+  getReelsSortedByViews(): Promise<Reels[]> {
+    return this.reelsService.getReelsSortedByViews();
   }
-
-  @Put(':id/comments')
-  @ApiOperation({ summary: 'Add a comment to a reel' })
-  @ApiResponse({
-    status: 200,
-    description: 'Comment added successfully.',
-    type: Reels,
-  })
-  async addComment(
-    @Param('id') id: string,
-    @Body() commentDto: CommentDto,
-  ): Promise<Reels> {
-    return this.reelsService.addComment(id, commentDto);
-  }
-
-  @Put(':id/comments/:commentId/like')
-  @ApiOperation({ summary: 'Add a like to a comment' })
-  @ApiResponse({
-    status: 200,
-    description: 'Like added successfully.',
-    type: Reels,
-  })
-  async likeComment(
-    @Param('id') id: string,
-    @Param('commentId') commentId: string,
-  ): Promise<Reels> {
-    return this.reelsService.likeComment(id, commentId);
+  @Put(':id/views')
+  incrementViews(@Param('id') id: string) {
+    return this.reelsService.incrementViews(id);
   }
 }

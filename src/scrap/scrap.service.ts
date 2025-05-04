@@ -7,7 +7,7 @@ import { Scrap } from './scrap.schema';
 export class ScrapService {
   constructor(
     @InjectModel('Scrap') private readonly scrapModel: Model<Scrap>,
-  ) { }
+  ) {}
 
   async createScrap(scrapData: Scrap): Promise<Scrap> {
     const newScrap = new this.scrapModel(scrapData);
