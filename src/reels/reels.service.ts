@@ -9,6 +9,7 @@ import { Article } from '../article/article.schema';
 import { S3Service } from '../s3/s3.service';
 import { Readable } from 'stream';
 import { merge } from 'cheerio/lib/static';
+import { Conversation } from '../conversation/conversation.schema';
 
 const fs = require('fs');
 const axios = require('axios');
@@ -20,6 +21,7 @@ const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 export class ReelsService {
   constructor(
     @InjectModel(Reels.name) private reelsModel: Model<Reels>,
+    @InjectModel(Conversation.name) private conversationModel: Model<Conversation>,
     private readonly s3Service: S3Service,
   ) {}
 
@@ -78,43 +80,22 @@ export class ReelsService {
     return this.reelsModel.find().sort({ views: -1 }).exec();
   }
 
-  // //이제 얜 필요없어질거임! createReelFromConversation이 얘를 대신할거!
-  // async createReelFromArticle(article: Article): Promise<void> {
-  //   // console.log('l', article.category);
-  //   const createReelsDto = new CreateReelsDto();
-  //   createReelsDto.owner = 'newsqrap';
-  //   createReelsDto.articleId = [article._id as Types.ObjectId];
-  //   createReelsDto.speak = await this.createAudioFromText(
-  //     article.summary,
-  //     createReelsDto.articleId,
-  //   ); // tts mp3 파일의 object storage url
-  //   createReelsDto.category = article.category;
-  //   const reelsPath = await this.mergeVideoAndAudio(
-  //     article.category,
-  //     createReelsDto.articleId,
-  //   );
-  //   const reelsUrl = await this.uploadFileToStorage(reelsPath);
-  //   createReelsDto.video = reelsUrl;
-  //   const newReels = new this.reelsModel(createReelsDto);
-  //   await newReels.save();
-  // }
-
   async createAudioFromText(
-    summary: string,
-    reelsId: Types.ObjectId[],
+    sentence: string,
+    speaker: string,
+    fileName: string,
   ): Promise<string> {
     const clovaspeech_url =
       'https://naveropenapi.apigw.ntruss.com/tts-premium/v1/tts';
-    console.log(summary);
     const options = {
       method: 'post',
       url: clovaspeech_url,
       data: qs.stringify({
-        speaker: 'nara',
+        speaker: speaker,
         volume: '0',
         speed: '-1',
         pitch: '0',
-        text: summary,
+        text: sentence,
         format: 'mp3',
       }),
       headers: {
@@ -125,27 +106,38 @@ export class ReelsService {
       responseType: 'stream',
     };
     try {
-      console.log('try문 들어옴#################');
       const response = await axios(options);
-      console.log('axios반응 받음#################');
-      const filePath = `./assets/tts/${reelsId}.mp3`;
-      console.log('저장경로설정함#################');
+      const filePath = `./assets/tts/${fileName}.mp3`;
       const writer = fs.createWriteStream(filePath);
-      console.log('fs로 저장#################');
       response.data.pipe(writer);
-      console.log('pipe 작동#################');
       return new Promise((resolve, reject) => {
         writer.on('finish', () => {
-          console.log('파일 쓰기 완료');
           resolve(filePath);
         });
         writer.on('error', reject);
       });
     } catch (error) {
       console.error('Error fetching TTS:', error);
-      // throw error;
       return 'default-path.mp3';
     }
+  }
+
+  async createAudioFromConversation(articleId: string): Promise<string[]> {
+    const audioPaths: string[] = [];
+    const article = await this.conversationModel.findById(articleId).lean();
+    const script = article.script;
+    for (let i = 0; i < script.length; i++) {
+      const line = script[i];
+      const speakerKey = Object.keys(line)[0];
+      const sentence = line[speakerKey];
+
+      const speaker = speakerKey === 'user1' ? 'ndain' : 'njinho';
+
+      const fileName = `${articleId}_${i}_${speakerKey}`;
+      const audioPath = await this.createAudioFromText(sentence, speaker, fileName);
+      audioPaths.push(audioPath);
+    }
+    return audioPaths;
   }
 
   async mergeVideoAndAudio(

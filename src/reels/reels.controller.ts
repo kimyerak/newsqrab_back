@@ -75,4 +75,9 @@ export class ReelsController {
   incrementViews(@Param('id') id: string) {
     return this.reelsService.incrementViews(id);
   }
+
+  @Post(':id/tts')
+  async generateTTS(@Param('id') id: string) {
+    return this.reelsService.createAudioFromConversation(id);
+  }
 }
