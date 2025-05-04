@@ -302,25 +302,6 @@ export class ArticleService {
       };
       const puppeteer = require('puppeteer');
 
-      (async () => {
-        const url =
-          'https://namu.wiki/w/%EC%96%B8%EB%A1%A0%20%EA%B4%80%EB%A0%A8%20%EC%A0%95%EB%B3%B4';
-        const browser = await puppeteer.launch({
-          args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        });
-        const page = await browser.newPage();
-        await page.goto(url, { waitUntil: 'networkidle0' });
-
-        // 페이지 내 모든 <a> 태그의 href 추출
-        const links = await page.$$eval('a', (anchors) =>
-          anchors.map((a) => a.href),
-        );
-        console.log('추출된 링크들:');
-        console.log(links);
-
-        await browser.close();
-      })();
-
       try {
         // Python 서버로 요청을 보냄
         const response = await axios.post(ragServerUrl, articleData);
