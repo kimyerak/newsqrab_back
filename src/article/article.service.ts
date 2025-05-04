@@ -55,6 +55,14 @@ export class ArticleService {
       article.content,
     );
   }
+
+  async getArticleContent(id: string): Promise<string> {
+    const article = await this.articleModel.findById(id).exec();
+    if (!article) {
+      throw new NotFoundException('Article not found');
+    }
+    return article.content;
+  }
   // async update(
   //   id: string,
   //   updateArticleDto: UpdateArticleDto,
