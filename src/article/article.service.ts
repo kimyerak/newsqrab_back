@@ -30,6 +30,7 @@ export class ArticleService {
       content,
       createdBy: 'admin',
     });
+
     return newArticle.save();
   }
 
