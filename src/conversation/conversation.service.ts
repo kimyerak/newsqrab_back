@@ -21,7 +21,7 @@ export class ConversationService {
     private readonly openAiService: OpenAiService,
   ) {}
 
-  // ✅ original 생성
+  // ✅ original 대사 생성
   async generateOriginalConversation(articleId: string): Promise<Conversation> {
     const article = await this.articleModel.findById(articleId).exec();
     if (!article) {
@@ -52,7 +52,7 @@ export class ConversationService {
     return conversation;
   }
 
-  // ✅ user-modified 생성
+  // ✅ user-modified 대사 생성
   async generateUserModifiedConversation(
     parentId: string,
     userRequest: string,
@@ -70,10 +70,20 @@ export class ConversationService {
       throw new NotFoundException('Article not found');
     }
 
+    // 👉 parent의 script를 문자열로 변환
+    const originalScriptText = originalConversation.script
+      .map((pair) => {
+        const [key, value] = Object.entries(pair)[0];
+        return `${key}: ${value}`;
+      })
+      .join('\n');
+
     const prompt = PROMPT_USER_MODIFIED_TEMPLATE.replace(
       '{content}',
       article.content,
-    ).replace('{userRequest}', userRequest);
+    )
+      .replace('{userRequest}', userRequest)
+      .replace('{originalScript}', originalScriptText);
 
     const gptResponse = await this.openAiService.generateText(prompt);
     console.log('[🧩 user-modifie GPT raw 응답]', gptResponse);

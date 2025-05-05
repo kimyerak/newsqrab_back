@@ -27,7 +27,11 @@ export class ConversationController {
   }
 
   @Post('generate/user-modified')
-  @ApiOperation({ summary: '유저 요청 기반 user-modified 대화 생성' })
+  @ApiOperation({
+    summary: '유저 요청 기반 user-modified 대화 생성',
+    description:
+      '첫수정 요청시엔 original 대화의 ID가 parent. 수정 반복 시엔 직전 대화의 ID가 parent.',
+  })
   @ApiBody({
     schema: {
       type: 'object',
@@ -35,6 +39,11 @@ export class ConversationController {
         parentId: { type: 'string' },
         userRequest: { type: 'string' },
         articleId: { type: 'string' },
+      },
+      example: {
+        articleId: '66a8d5dcdc25ea64654b431e',
+        parentId: '6818e2c4de935b21ffca4652',
+        userRequest: '첫 시작 질문을 더 짧고 hooking하게 바꿔',
       },
     },
   })
