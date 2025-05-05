@@ -45,22 +45,6 @@ export class ArticleService {
     return this.articleModel.find().sort({ views: -1 }).limit(5).exec();
   }
 
-  // ✅ [예락 추가] 특정 Article로 Conversation 생성하는 함수
-  async generateConversationFromArticle(articleId: string): Promise<any> {
-    const article = await this.articleModel.findById(articleId).exec();
-    if (!article) {
-      throw new NotFoundException('Article not found');
-    }
-    const conversation =
-      await this.conversationService.generateConversationFromContent(
-        article.content,
-      );
-    // ✅ 오직 script만 반환하도록 가공
-    return {
-      script: conversation.script,
-    };
-  }
-
   async getArticleContent(id: string): Promise<string> {
     const article = await this.articleModel.findById(id).exec();
     if (!article) {
