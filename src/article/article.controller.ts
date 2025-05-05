@@ -33,14 +33,8 @@ export class ArticleController {
     return this.articleService.IncreaseViews(id);
   }
 
-  // ✅ [예락 - 추가] 특정 Article로 Conversation 생성하는 API
-  @Get(':id/generate-conversation')
-  async generateConversation(@Param('id') id: string) {
-    return this.articleService.generateConversationFromArticle(id);
-  }
-
   @Get(':id/content')
-  getArticleContent(@Param('id') id:string) {
+  getArticleContent(@Param('id') id: string) {
     return this.articleService.getArticleContent(id);
   }
   // @Post()

@@ -13,31 +13,41 @@ import { ConversationService } from './conversation.service';
 export class ConversationController {
   constructor(private readonly conversationService: ConversationService) {}
 
-  @Post('generate')
-  @ApiOperation({
-    summary: 'OpenAI로 대화 생성',
-    description: '주어진 content로 대화 스크립트를 생성합니다.',
-  })
+  @Post('generate/original')
+  @ApiOperation({ summary: '기사에서 original 대화 생성' })
   @ApiBody({
-    schema: { type: 'object', properties: { content: { type: 'string' } } },
+    schema: {
+      type: 'object',
+      properties: { articleId: { type: 'string' } },
+    },
   })
-  @ApiResponse({ status: 201, description: '대화 생성 성공' })
-  async generate(@Body('content') content: string) {
-    return this.conversationService.generateConversationFromContent(content);
+  @ApiResponse({ status: 201, description: 'Original 대화 생성 성공' })
+  async generateOriginal(@Body('articleId') articleId: string) {
+    return this.conversationService.generateOriginalConversation(articleId);
   }
 
-  @Get(':id')
-  @ApiOperation({
-    summary: '대화 조회',
-    description: '대화 ID로 저장된 대화를 조회합니다.',
+  @Post('generate/user-modified')
+  @ApiOperation({ summary: '유저 요청 기반 user-modified 대화 생성' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        parentId: { type: 'string' },
+        userRequest: { type: 'string' },
+        articleId: { type: 'string' },
+      },
+    },
   })
-  @ApiParam({
-    name: 'id',
-    type: 'string',
-    description: '대화 MongoDB ObjectId',
-  })
-  @ApiResponse({ status: 200, description: '대화 조회 성공' })
-  async findById(@Param('id') id: string) {
-    return this.conversationService.findById(id);
+  @ApiResponse({ status: 201, description: 'User-modified 대화 생성 성공' })
+  async generateUserModified(
+    @Body('parentId') parentId: string,
+    @Body('userRequest') userRequest: string,
+    @Body('articleId') articleId: string,
+  ) {
+    return this.conversationService.generateUserModifiedConversation(
+      parentId,
+      userRequest,
+      articleId,
+    );
   }
 }

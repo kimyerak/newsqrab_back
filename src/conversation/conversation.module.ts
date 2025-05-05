@@ -5,11 +5,13 @@ import { Conversation, ConversationSchema } from './conversation.schema';
 import { ConversationService } from './conversation.service';
 import { ConversationController } from './conversatio.controller';
 import { OpenAiService } from '../openai/openai.service';
+import { Article, ArticleSchema } from '../article/article.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Conversation.name, schema: ConversationSchema },
+      { name: Article.name, schema: ArticleSchema },
     ]),
   ],
   controllers: [ConversationController],
