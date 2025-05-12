@@ -121,8 +121,28 @@ export class ReelsService {
     }
   }
 
-  async createAudioFromConversation(articleId: string): Promise<string[]> {
+  async concatAudioFiles(mp3Paths: string[], outputPath: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const command = ffmpeg();
+      mp3Paths.forEach((filePath) => {
+        command.input(filePath);
+      });
+      command
+      .on('error', (err) => {
+        console.error('Audio concat error', err);
+        reject(err);
+      })
+      .on('end', () => {
+        console.log('Audio concat success');
+        resolve(outputPath);
+      })
+      .mergeToFile(outputPath, './temp');
+    })
+  }
+
+  async createAudioFromConversation(articleId: string): Promise<string> {
     const audioPaths: string[] = [];
+    const silencePath = './assets/tts/silence.mp3';
     const article = await this.conversationModel.findById(articleId).lean();
     const script = article.script;
     for (let i = 0; i < script.length; i++) {
@@ -139,16 +159,24 @@ export class ReelsService {
       const filePath = `${folderPath}/${i}_${speakerKey}.mp3`;
       const audioPath = await this.createAudioFromText(sentence, speaker, filePath);
       audioPaths.push(audioPath);
+
+      if (i < script.length - 1) { // 자연스러운 대화를 위해 대사 사이에 1초 공백 삽입
+        audioPaths.push(silencePath);
+      }
     }
-    return audioPaths;
+
+    const mergedPath = `./assets/tts/${articleId}/concat.mp3`;
+    await this.concatAudioFiles(audioPaths, mergedPath);
+
+    return mergedPath;
   }
 
   async mergeVideoAndAudio(
-    reelsId: Types.ObjectId[],
+    reelsId: string,
   ): Promise<string> {
     ffmpeg.setFfmpegPath(ffmpegPath);
     const videoInputPath = `./assets/video/Culture.mp4`;
-    const audioInputPath = `./assets/tts/${reelsId}.mp3`;
+    const audioInputPath = `./assets/tts/${reelsId}/concat.mp3`;
     const outputPath = `./assets/reels/${reelsId}.mp4`;
 
     try {
@@ -163,11 +191,11 @@ export class ReelsService {
             '-strict experimental', // 일부 코덱에 필요한 경우
             '-shortest',
           ])
-          .on('error', function (err) {
+          .on('error', (err) => {
             console.log('An error occurred during merging: ' + err.message);
             reject(err);
           })
-          .on('end', function () {
+          .on('end', () => {
             console.log('Merging finished successfully!');
             resolve(outputPath);
           })
@@ -179,6 +207,7 @@ export class ReelsService {
       return 'default-path.mp3';
     }
   }
+  
   async uploadFileToStorage(filePath: string): Promise<string> {
     try {
       const fileBuffer = fs.readFileSync(filePath);
