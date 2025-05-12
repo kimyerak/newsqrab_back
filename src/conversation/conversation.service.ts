@@ -3,7 +3,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Conversation } from './conversation.schema';
-import { parseQnAScript } from './parse-qna.util';
+import { parseQnAScript } from './utils/parse-qna.util';
 import { OpenAiService } from '../openai/openai.service';
 import {
   PROMPT_SUMMARIZE_TEMPLATE,

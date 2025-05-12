@@ -11,7 +11,7 @@ import { Readable } from 'stream';
 import { merge } from 'cheerio/lib/static';
 import { Conversation } from '../conversation/conversation.schema';
 
-const fs = require('fs');
+import * as fs from 'fs';
 const axios = require('axios');
 import * as path from 'path';
 const qs = require('qs');
@@ -21,7 +21,8 @@ const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 export class ReelsService {
   constructor(
     @InjectModel(Reels.name) private reelsModel: Model<Reels>,
-    @InjectModel(Conversation.name) private conversationModel: Model<Conversation>,
+    @InjectModel(Conversation.name)
+    private conversationModel: Model<Conversation>,
     private readonly s3Service: S3Service,
   ) {}
 
@@ -152,12 +153,14 @@ export class ReelsService {
 
       const speaker = speakerKey === 'user1' ? 'ndain' : 'njinho';
 
+
       const folderPath = `./assets/tts/${articleId}`;
       if (!fs.existsSync(folderPath)) {
         fs.mkdirSync(folderPath, { recursive: true });
       }
       const filePath = `${folderPath}/${i}_${speakerKey}.mp3`;
       const audioPath = await this.createAudioFromText(sentence, speaker, filePath);
+
       audioPaths.push(audioPath);
 
       if (i < script.length - 1) { // 자연스러운 대화를 위해 대사 사이에 1초 공백 삽입
