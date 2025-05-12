@@ -6,6 +6,7 @@ import { ConversationService } from './conversation.service';
 import { ConversationController } from './conversatio.controller';
 import { OpenAiService } from '../openai/openai.service';
 import { Article, ArticleSchema } from '../article/article.schema';
+import { SubtitleService } from './subtitle.service';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { Article, ArticleSchema } from '../article/article.schema';
     ]),
   ],
   controllers: [ConversationController],
-  providers: [ConversationService, OpenAiService],
-  exports: [ConversationService], // 다른 모듈에서 사용하려고 export
+  providers: [ConversationService, OpenAiService, SubtitleService],
+  exports: [ConversationService, SubtitleService], // 다른 모듈에서 사용하려고 export
 })
 export class ConversationModule {}

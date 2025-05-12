@@ -7,11 +7,15 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 import { ConversationService } from './conversation.service';
+import { SubtitleService } from './subtitle.service';
 
 @ApiTags('Conversation') // Swagger에서 그룹화될 이름
 @Controller('conversation')
 export class ConversationController {
-  constructor(private readonly conversationService: ConversationService) {}
+  constructor(
+    private readonly conversationService: ConversationService,
+    private readonly subtitleService: SubtitleService,
+  ) {}
 
   @Post('generate/original')
   @ApiOperation({ summary: '기사에서 original 대화 생성' })
@@ -58,5 +62,12 @@ export class ConversationController {
       userRequest,
       articleId,
     );
+  }
+  @Post(':id/confirm')
+  @ApiOperation({ summary: '대사 최종 컨펌 → ASS 자막 파일 저장' })
+  @ApiParam({ name: 'id', description: 'Conversation ID', type: 'string' })
+  @ApiResponse({ status: 200, description: 'ASS 자막 파일 생성 완료' })
+  async confirmFinalConversation(@Param('id') conversationId: string) {
+    return this.subtitleService.saveASSFromConversation(conversationId);
   }
 }
