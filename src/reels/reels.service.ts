@@ -83,7 +83,7 @@ export class ReelsService {
   async createAudioFromText(
     sentence: string,
     speaker: string,
-    fileName: string,
+    filePath: string,
   ): Promise<string> {
     const clovaspeech_url =
       'https://naveropenapi.apigw.ntruss.com/tts-premium/v1/tts';
@@ -107,7 +107,6 @@ export class ReelsService {
     };
     try {
       const response = await axios(options);
-      const filePath = `./assets/tts/${fileName}.mp3`;
       const writer = fs.createWriteStream(filePath);
       response.data.pipe(writer);
       return new Promise((resolve, reject) => {
@@ -133,19 +132,22 @@ export class ReelsService {
 
       const speaker = speakerKey === 'user1' ? 'ndain' : 'njinho';
 
-      const fileName = `${articleId}_${i}_${speakerKey}`;
-      const audioPath = await this.createAudioFromText(sentence, speaker, fileName);
+      const folderPath = `./assets/tts/${articleId}`;
+      if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath, { recursive: true });
+      }
+      const filePath = `${folderPath}/${i}_${speakerKey}.mp3`;
+      const audioPath = await this.createAudioFromText(sentence, speaker, filePath);
       audioPaths.push(audioPath);
     }
     return audioPaths;
   }
 
   async mergeVideoAndAudio(
-    category: string,
     reelsId: Types.ObjectId[],
   ): Promise<string> {
     ffmpeg.setFfmpegPath(ffmpegPath);
-    const videoInputPath = `./assets/video/${category}.mp4`;
+    const videoInputPath = `./assets/video/Culture.mp4`;
     const audioInputPath = `./assets/tts/${reelsId}.mp3`;
     const outputPath = `./assets/reels/${reelsId}.mp4`;
 
