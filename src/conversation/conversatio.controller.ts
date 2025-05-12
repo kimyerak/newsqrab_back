@@ -70,4 +70,22 @@ export class ConversationController {
   async confirmFinalConversation(@Param('id') conversationId: string) {
     return this.subtitleService.saveASSFromConversation(conversationId);
   }
+
+  // @Post('generate/rag-modified')
+  // @ApiOperation({ summary: 'RAG 기반 rag-modified 대화 생성' })
+  // @ApiBody({
+  //   schema: {
+  //     type: 'object',
+  //     properties: {
+  //       articleId: { type: 'string' },
+  //     },
+  //     example: {
+  //       articleId: '663f1a8cf50c3031ae4b272e',
+  //     },
+  //   },
+  // })
+  // @ApiResponse({ status: 201, description: 'RAG 기반 대화 생성 성공' })
+  // async generateRagModified(@Body('articleId') articleId: string) {
+  //   return this.conversationService.generateRagModifiedConversation(articleId);
+  // }
 }

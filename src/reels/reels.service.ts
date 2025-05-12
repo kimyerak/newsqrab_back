@@ -17,6 +17,10 @@ import * as path from 'path';
 const qs = require('qs');
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
+const ffprobePath = require('@ffprobe-installer/ffprobe').path;
+ffmpeg.setFfprobePath(ffprobePath);
+ffmpeg.setFfmpegPath(ffmpegPath);
+
 @Injectable()
 export class ReelsService {
   constructor(
@@ -122,23 +126,26 @@ export class ReelsService {
     }
   }
 
-  async concatAudioFiles(mp3Paths: string[], outputPath: string): Promise<string> {
+  async concatAudioFiles(
+    mp3Paths: string[],
+    outputPath: string,
+  ): Promise<string> {
     return new Promise((resolve, reject) => {
       const command = ffmpeg();
       mp3Paths.forEach((filePath) => {
         command.input(filePath);
       });
       command
-      .on('error', (err) => {
-        console.error('Audio concat error', err);
-        reject(err);
-      })
-      .on('end', () => {
-        console.log('Audio concat success');
-        resolve(outputPath);
-      })
-      .mergeToFile(outputPath, './temp');
-    })
+        .on('error', (err) => {
+          console.error('Audio concat error', err);
+          reject(err);
+        })
+        .on('end', () => {
+          console.log('Audio concat success');
+          resolve(outputPath);
+        })
+        .mergeToFile(outputPath, './temp');
+    });
   }
 
   async createAudioFromConversation(articleId: string): Promise<string> {
@@ -153,17 +160,25 @@ export class ReelsService {
 
       const speaker = speakerKey === 'user1' ? 'ndain' : 'njinho';
 
-
       const folderPath = `./assets/tts/${articleId}`;
       if (!fs.existsSync(folderPath)) {
         fs.mkdirSync(folderPath, { recursive: true });
       }
       const filePath = `${folderPath}/${i}_${speakerKey}.mp3`;
-      const audioPath = await this.createAudioFromText(sentence, speaker, filePath);
+      const audioPath = await this.createAudioFromText(
+        sentence,
+        speaker,
+        filePath,
+      );
+
+      if (!fs.existsSync(audioPath)) {
+        throw new NotFoundException(`${audioPath} not found`);
+      }
 
       audioPaths.push(audioPath);
 
-      if (i < script.length - 1) { // 자연스러운 대화를 위해 대사 사이에 1초 공백 삽입
+      if (i < script.length - 1) {
+        // 자연스러운 대화를 위해 대사 사이에 1초 공백 삽입
         audioPaths.push(silencePath);
       }
     }
@@ -174,9 +189,7 @@ export class ReelsService {
     return mergedPath;
   }
 
-  async mergeVideoAndAudio(
-    reelsId: string,
-  ): Promise<string> {
+  async mergeVideoAndAudio(reelsId: string): Promise<string> {
     ffmpeg.setFfmpegPath(ffmpegPath);
     const videoInputPath = `./assets/video/Culture.mp4`;
     const audioInputPath = `./assets/tts/${reelsId}/concat.mp3`;
@@ -210,7 +223,7 @@ export class ReelsService {
       return 'default-path.mp3';
     }
   }
-  
+
   async uploadFileToStorage(filePath: string): Promise<string> {
     try {
       const fileBuffer = fs.readFileSync(filePath);
@@ -235,5 +248,40 @@ export class ReelsService {
       // throw new Error('File upload failed.');
       return 'default-path.mp3';
     }
+  }
+
+  /**
+   * 🔥 예락 - 자막 추가 API용: 릴스에 ASS 자막 입히기
+   */
+  async mergeReelsWithSubtitles(
+    conversationId: string,
+  ): Promise<{ finalVideoPath: string }> {
+    const inputVideo = `./assets/reels/${conversationId}.mp4`;
+    const inputASS = `./assets/subtitles/${conversationId}.ass`;
+    const outputPath = `./assets/final/${conversationId}_final.mp4`;
+
+    if (!fs.existsSync(inputVideo))
+      throw new NotFoundException('Reels 영상 파일이 없습니다');
+    if (!fs.existsSync(inputASS))
+      throw new NotFoundException('ASS 자막 파일이 없습니다');
+
+    if (!fs.existsSync('./assets/final')) {
+      fs.mkdirSync('./assets/final', { recursive: true });
+    }
+
+    return new Promise((resolve, reject) => {
+      ffmpeg(inputVideo)
+        .videoFilter(`ass=${inputASS}`)
+        .outputOptions(['-c:v libx264', '-c:a copy', '-shortest'])
+        .on('end', () => {
+          console.log('✅ 최종 영상 병합 완료');
+          resolve({ finalVideoPath: outputPath });
+        })
+        .on('error', (err) => {
+          console.error('❌ 병합 오류:', err.message);
+          reject(err);
+        })
+        .save(outputPath);
+    });
   }
 }
