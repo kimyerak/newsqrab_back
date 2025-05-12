@@ -38,7 +38,7 @@ export class SubtitleService {
 
     for (let i = 0; i < script.length; i++) {
       const speakerKey = Object.keys(script[i])[0];
-      const fileName = `${conversationId}_${i}_${speakerKey}.mp3`;
+      const fileName = `${i}_${speakerKey}.mp3`;
       const filePath = path.join(audioDir, fileName);
       const duration = await getAudioDuration(filePath);
       durations.push(duration);
@@ -85,7 +85,7 @@ export class SubtitleService {
 
     for (let i = 0; i < script.length; i++) {
       const speakerKey = Object.keys(script[i])[0];
-      const fileName = `${conversationId}_${i}_${speakerKey}.mp3`;
+      const fileName = `${i}_${speakerKey}.mp3`;
       const filePath = path.join(audioDir, fileName);
       const duration = await getAudioDuration(filePath);
       durations.push(duration);
@@ -101,6 +101,10 @@ export class SubtitleService {
     const assContent = generateASS(subtitles);
     const assFilePath = `./assets/subtitles/${conversationId}.ass`;
     fs.writeFileSync(assFilePath, assContent);
+
+    if (!fs.existsSync(assFilePath)) {
+      throw new NotFoundException(`TTS audio file not found: ${assFilePath}`);
+    }
 
     return assFilePath;
   }

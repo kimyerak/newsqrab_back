@@ -101,4 +101,36 @@ export class ConversationService {
     console.log('[✅ User-modified Conversation 저장 완료!]', conversation._id);
     return conversation;
   }
+
+  // ✅ rag-modified 대사 생성
+  // async generateRagModifiedConversation(
+  //   articleId: string,
+  // ): Promise<Conversation> {
+  //   const article = await this.articleModel.findById(articleId).exec();
+  //   if (!article) {
+  //     throw new NotFoundException('Article not found');
+  //   }
+
+  //   const ragSummary = article.summary;
+  //   if (!ragSummary || ragSummary.trim() === '') {
+  //     throw new NotFoundException('RAG summary not found in article');
+  //   }
+
+  //   // ✅ GPT 호출 없이 바로 파싱만
+  //   const script = parseQnAScript(ragSummary);
+  //   console.log('[🧩 rag-modified 파싱된 Script]', script);
+
+  //   const conversation = await this.conversationModel.create({
+  //     script,
+  //     type: 'rag-modified',
+  //     parentId: new Types.ObjectId(), // 자기 자신 ID
+  //     articleId: new Types.ObjectId(articleId),
+  //   });
+
+  //   conversation.parentId = new Types.ObjectId(conversation._id as string);
+  //   await conversation.save();
+
+  //   console.log('[✅ RAG 기반 Conversation 저장 완료!]', conversation._id);
+  //   return conversation;
+  // }
 }

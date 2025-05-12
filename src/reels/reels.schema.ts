@@ -4,7 +4,7 @@ import { Document, Types } from 'mongoose';
 @Schema()
 export class Reels extends Document {
   @Prop({ required: true })
-  owner: string; // 만든이이
+  owner: string; // 만든이
 
   @Prop({ type: Types.ObjectId, ref: 'Article', required: true })
   articleId: Types.ObjectId;

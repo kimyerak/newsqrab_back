@@ -18,6 +18,15 @@ export class CreateReelsDto {
   @Type(() => String)
   articleId: Types.ObjectId[];
 
+  @ApiProperty({
+    description: 'Conversation ID this reels is based on',
+    type: String,
+    example: '663acdb5c72cb20cc8f1e4ef',
+  })
+  @IsNotEmpty()
+  @Type(() => String)
+  conversationId: Types.ObjectId;
+
   @ApiProperty({ description: 'The speech that the avatar will say' })
   @IsString()
   @IsNotEmpty()
