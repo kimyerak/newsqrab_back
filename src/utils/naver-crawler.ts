@@ -1,24 +1,34 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+import puppeteer from 'puppeteer';
 
 export async function crawlNaverNewsContent(url: string): Promise<string> {
+  const browser = await puppeteer.launch({ headless: true });
+  const page = await browser.newPage();
+
+  await page.goto(url, { waitUntil: 'domcontentloaded' });
+
   try {
-    const { data: html } = await axios.get(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0',
+    await page.waitForFunction(
+      () => {
+        const script = document.querySelector('script[src*="ArticleAd.js"]');
+        return script?.getAttribute('data-status') === 'ready';
       },
-    });
-
-    const $ = cheerio.load(html);
-    const article = $('#dic_area');
-
-    if (!article.length) {
-      return '기사 내용을 찾을 수 없습니다.';
-    }
-
-    return article.text().trim();
+      { timeout: 5000 } 
+    );
   } catch (e) {
-    console.warn('크롤링 에러:', e.message);
-    return '기사 내용은 준비 중입니다.';
+    console.warn('data-status="ready" 스크립트 로딩 실패');
   }
+
+  const content = await page.evaluate(() => {
+    if (location.href.includes('n.news.naver.com')) {
+      return (document.querySelector('#dic_area')as HTMLElement)?.innerText || null;
+    }
+    const nodes = document.querySelectorAll('#comp_news_article');
+    return Array.from(nodes).map(el => el.textContent?.trim()).join('\n').trim();
+  });
+
+  await browser.close();
+  return content || "기사 본문 로딩 중입니다.";
+
 }

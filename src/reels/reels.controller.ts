@@ -80,4 +80,9 @@ export class ReelsController {
   async generateTTS(@Param('id') id: string) {
     return this.reelsService.createAudioFromConversation(id);
   }
+
+  // @Post(':id/merge-audio-and-video')
+  // async mergeAudioandVideo(@Param('id') id: string) {
+  //   return this.reelsService.mergeVideoAndAudio(id);
+  // }
 }
