@@ -3,7 +3,13 @@ import { ReelsService } from './reels.service';
 import { CreateReelsDto } from './dto/create-reels.dto';
 import { UpdateReelsDto } from './dto/update-reels.dto';
 import { Reels } from './reels.schema';
-import { ApiOperation, ApiResponse, ApiTags, ApiParam } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiParam,
+  ApiBody,
+} from '@nestjs/swagger';
 @ApiTags('reels')
 @Controller('reels')
 export class ReelsController {
@@ -151,5 +157,51 @@ export class ReelsController {
   })
   async addSubtitles(@Param('id') id: string) {
     return this.reelsService.mergeReelsWithSubtitles(id);
+  }
+  // 예락 2번째거 추가가
+  @Post(':conversationId/finalize')
+  @ApiOperation({
+    summary: '최종 영상 S3 업로드 및 Reels DB 저장',
+    description:
+      'assets/final/{conversationId}.mp4 파일을 S3에 업로드하고, Reels DB에 저장합니다.',
+  })
+  @ApiParam({
+    name: 'conversationId',
+    description: 'Conversation ID',
+    example: '681789494f637e7113fa38aa',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        articleId: { type: 'string' },
+        owner: { type: 'string' },
+        character1: { type: 'string' },
+        character2: { type: 'string' },
+        createdBy: { type: 'string' },
+      },
+      required: ['articleId', 'owner', 'character1', 'character2', 'createdBy'],
+    },
+  })
+  @ApiResponse({ status: 201, description: 'Reels 저장 및 S3 업로드 성공' })
+  async finalizeReelsUpload(
+    @Param('conversationId') conversationId: string,
+    @Body()
+    body: {
+      articleId: string;
+      owner: string;
+      character1: string;
+      character2: string;
+      createdBy: string;
+    },
+  ): Promise<Reels> {
+    return this.reelsService.uploadFinalVideoAndSaveReels(
+      conversationId,
+      body.articleId,
+      body.owner,
+      body.character1,
+      body.character2,
+      body.createdBy,
+    );
   }
 }
