@@ -3,7 +3,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Conversation, ConversationSchema } from './conversation.schema';
 import { ConversationService } from './conversation.service';
-import { ConversationController } from './conversatio.controller';
+import { ConversationController } from './conversation.controller';
 import { OpenAiService } from '../openai/openai.service';
 import { Article, ArticleSchema } from '../article/article.schema';
 import { SubtitleService } from './subtitle.service';

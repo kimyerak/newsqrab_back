@@ -284,4 +284,34 @@ export class ReelsService {
         .save(outputPath);
     });
   }
+
+  // ✅ 최종 영상 업로드 및 DB에 저장
+  async uploadFinalVideoAndSaveReels(
+    conversationId: string,
+    articleId: string,
+    owner: string,
+    character1: string,
+    character2: string,
+    createdBy: string, // 유저 ID 등
+  ): Promise<Reels> {
+    const finalVideoPath = `./assets/final/${conversationId}_final.mp4`;
+
+    if (!fs.existsSync(finalVideoPath)) {
+      throw new NotFoundException('Final video file not found');
+    }
+
+    const videoUrl = await this.uploadFileToStorage(finalVideoPath);
+
+    const newReels = await this.reelsModel.create({
+      conversationId,
+      articleId,
+      owner,
+      character1,
+      character2,
+      reelsUrl: videoUrl,
+      createdBy,
+    });
+
+    return newReels;
+  }
 }

@@ -5,11 +5,13 @@ import { Model, Types } from 'mongoose';
 import { Conversation } from './conversation.schema';
 import { parseQnAScript } from './utils/parse-qna.util';
 import { OpenAiService } from '../openai/openai.service';
+import axios from 'axios';
 import {
   PROMPT_SUMMARIZE_TEMPLATE,
   PROMPT_USER_MODIFIED_TEMPLATE,
 } from '../openai/prompts/prompt_article';
 import { Article } from '../article/article.schema';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ConversationService {
@@ -19,6 +21,7 @@ export class ConversationService {
     @InjectModel(Article.name) // ✅ 이거 추가
     private articleModel: Model<Article>, // ✅ 이거 추가
     private readonly openAiService: OpenAiService,
+    private readonly configService: ConfigService,
   ) {}
 
   // ✅ original 대사 생성
@@ -102,35 +105,65 @@ export class ConversationService {
     return conversation;
   }
 
-  // ✅ rag-modified 대사 생성
-  // async generateRagModifiedConversation(
-  //   articleId: string,
-  // ): Promise<Conversation> {
-  //   const article = await this.articleModel.findById(articleId).exec();
-  //   if (!article) {
-  //     throw new NotFoundException('Article not found');
-  //   }
+  // ✅ rag-modified 대사 생성 - 내가 parent의 예전 스크립트를 보내줘야함!!, 그리고 기사 보내야함!!!
+  // }>(this.ragServerUrl, { content });
+  async generateRagModifiedConversation(
+    articleId: string,
+    parentConversationId: string,
+  ): Promise<Conversation> {
+    // 1. 기사 본문 가져오기
+    const article = await this.articleModel.findById(articleId).exec();
+    if (!article) {
+      throw new NotFoundException('Article not found');
+    }
 
-  //   const ragSummary = article.summary;
-  //   if (!ragSummary || ragSummary.trim() === '') {
-  //     throw new NotFoundException('RAG summary not found in article');
-  //   }
+    // 2. 기존 conversation 스크립트 가져오기
+    const parent = await this.conversationModel
+      .findById(parentConversationId)
+      .exec();
+    if (!parent) {
+      throw new NotFoundException('Parent conversation not found');
+    }
 
-  //   // ✅ GPT 호출 없이 바로 파싱만
-  //   const script = parseQnAScript(ragSummary);
-  //   console.log('[🧩 rag-modified 파싱된 Script]', script);
+    // 3. 기존 대사 → 문자열로 변환 ("user1: ...\nuser2: ..." 형식)
+    const originalScriptText = parent.script
+      .map((line) => {
+        const [key, value] = Object.entries(line)[0];
+        return `${key}: ${value}`;
+      })
+      .join('\n');
 
-  //   const conversation = await this.conversationModel.create({
-  //     script,
-  //     type: 'rag-modified',
-  //     parentId: new Types.ObjectId(), // 자기 자신 ID
-  //     articleId: new Types.ObjectId(articleId),
-  //   });
+    // 4. RAG 서버에 본문과 스크립트 모두 전송
+    const ragServerUrl =
+      this.configService.get<string>('RAG_SERVER_URL') ??
+      'http://localhost:8000/rag';
 
-  //   conversation.parentId = new Types.ObjectId(conversation._id as string);
-  //   await conversation.save();
+    let ragScriptText = '';
+    try {
+      const response = await axios.post<{ script: string }>(
+        `${ragServerUrl}/filter`,
+        {
+          content: article.content,
+          originalScript: originalScriptText,
+        },
+      );
 
-  //   console.log('[✅ RAG 기반 Conversation 저장 완료!]', conversation._id);
-  //   return conversation;
-  // }
+      ragScriptText = response.data.script;
+      console.log('[✅ RAG 응답]', ragScriptText);
+    } catch (err) {
+      console.error('❌ RAG 서버 호출 실패:', err.message);
+      throw new Error('RAG server communication failed');
+    }
+
+    // 5. 응답 파싱 및 저장
+    const parsedScript = parseQnAScript(ragScriptText);
+    const newConversation = await this.conversationModel.create({
+      script: parsedScript,
+      type: 'rag-modified',
+      parentId: new Types.ObjectId(parentConversationId),
+      articleId: new Types.ObjectId(articleId),
+    });
+
+    return newConversation;
+  }
 }

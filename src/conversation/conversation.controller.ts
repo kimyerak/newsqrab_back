@@ -18,7 +18,7 @@ export class ConversationController {
   ) {}
 
   @Post('generate/original')
-  @ApiOperation({ summary: '기사에서 original 대화 생성' })
+  @ApiOperation({ summary: '1. GPT만으로 기사에서 original 대화 생성' })
   @ApiBody({
     schema: {
       type: 'object',
@@ -32,7 +32,7 @@ export class ConversationController {
 
   @Post('generate/user-modified')
   @ApiOperation({
-    summary: '유저 요청 기반 user-modified 대화 생성',
+    summary: '2. 유저 요청 기반 user-modified 대화 생성',
     description:
       '첫수정 요청시엔 original 대화의 ID가 parent. 수정 반복 시엔 직전 대화의 ID가 parent.',
   })
@@ -63,6 +63,30 @@ export class ConversationController {
       articleId,
     );
   }
+
+  @Post('generate/rag-modified')
+  @ApiOperation({ summary: '3. RAG 기반 대사 수정 → rag-modified 생성' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        articleId: { type: 'string' },
+        parentConversationId: { type: 'string' },
+      },
+      required: ['articleId', 'parentConversationId'],
+    },
+  })
+  @ApiResponse({ status: 201, description: 'RAG-modified 대화 생성 성공' })
+  async generateRagModified(
+    @Body('articleId') articleId: string,
+    @Body('parentConversationId') parentConversationId: string,
+  ) {
+    return this.conversationService.generateRagModifiedConversation(
+      articleId,
+      parentConversationId,
+    );
+  }
+
   @Post(':id/confirm')
   @ApiOperation({ summary: '대사 최종 컨펌 → ASS 자막 파일 저장' })
   @ApiParam({ name: 'id', description: 'Conversation ID', type: 'string' })
@@ -70,22 +94,4 @@ export class ConversationController {
   async confirmFinalConversation(@Param('id') conversationId: string) {
     return this.subtitleService.saveASSFromConversation(conversationId);
   }
-
-  // @Post('generate/rag-modified')
-  // @ApiOperation({ summary: 'RAG 기반 rag-modified 대화 생성' })
-  // @ApiBody({
-  //   schema: {
-  //     type: 'object',
-  //     properties: {
-  //       articleId: { type: 'string' },
-  //     },
-  //     example: {
-  //       articleId: '663f1a8cf50c3031ae4b272e',
-  //     },
-  //   },
-  // })
-  // @ApiResponse({ status: 201, description: 'RAG 기반 대화 생성 성공' })
-  // async generateRagModified(@Body('articleId') articleId: string) {
-  //   return this.conversationService.generateRagModifiedConversation(articleId);
-  // }
 }
