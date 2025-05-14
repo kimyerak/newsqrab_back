@@ -1,0 +1,17 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1280
+PlayResY: 720
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Noto Sans CJK KR,40,&H00FFFFFF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,2,1,2,10,10,10,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,00:00:00.00,00:00:04.53,Default,,0,0,0,,헐 대박 핀란드도 초등학생들 스마트폰 사용하는 걸 제한한다고?
+Dialogue: 0,00:00:04.53,00:00:09.83,Default,,0,0,0,,응 2025년부터 수업 중에만 제한하고 필요할 땐 교사 허락받으면 쓸 수 있어!
+Dialogue: 0,00:00:09.83,00:00:13.39,Default,,0,0,0,,그럼 다른 나라들도 비슷하게 하고 있어?
+Dialogue: 0,00:00:13.39,00:00:19.03,Default,,0,0,0,,맞아 덴마크는 아예 학교에서 휴대전화 금지하고 프랑스도 오래 전에 학교에서 제한했어.
+Dialogue: 0,00:00:19.03,00:00:21.81,Default,,0,0,0,,노르웨이는 뭐 어떤 규제하고 있어?
+Dialogue: 0,00:00:21.81,00:00:26.75,Default,,0,0,0,,노르웨이는 SNS 만드는 최소 연령을 15세로 올렸어 어린이 두뇌 보호하려고!
