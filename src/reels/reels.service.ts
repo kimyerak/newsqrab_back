@@ -21,6 +21,9 @@ const ffprobePath = require('@ffprobe-installer/ffprobe').path;
 ffmpeg.setFfprobePath(ffprobePath);
 ffmpeg.setFfmpegPath(ffmpegPath);
 
+const ffprobe = require('ffprobe');
+const ffprobeStatic = require('ffprobe-static');
+
 @Injectable()
 export class ReelsService {
   constructor(
@@ -148,22 +151,80 @@ export class ReelsService {
     });
   }
 
+  // 오디오 길이 측정 -> 캐릭터별 영상 길이 자를 때 사용
+  async getAudioDuration(filePath: string): Promise<number> {
+    const info = await ffprobe(filePath, { path: ffprobeStatic.path });
+    const duration = info.streams[0].duration;
+    return parseFloat(duration);
+  }
+  
+  async extractVideoSegment(
+    inputPath: string,
+    startTime: number,
+    duration: number,
+    outputPath: string,
+  ): Promise<void> {
+    return new Promise((resolve, reject) => {
+      ffmpeg(inputPath)
+      .setStartTime(0)
+      .setDuration(duration)
+      .output(outputPath)
+      .on('end', resolve)
+      .on('error', reject)
+      .run();
+    })
+  }
+
+  async mergeVideoSegments(
+    chunkPaths: string[],
+    outputPath: string
+  ): Promise<void> {
+    const concatFilePath = './assets/temp/concat.txt';
+
+    const concatList = chunkPaths.map((p) => `file '${path.resolve(p)}'`).join('\n');
+    fs.writeFileSync(concatFilePath, concatList, { encoding: 'utf8' });
+
+    return new Promise((resolve, reject) => {
+      ffmpeg()
+      .input(concatFilePath)
+      .inputOptions(['-f concat', '-safe 0'])
+      .outputOptions(['-c copy'])
+      .output(outputPath)
+      .on('end', resolve)
+      .on('error', reject)
+      .run();
+    })
+  }
+
   async createAudioFromConversation(articleId: string): Promise<string> {
     const audioPaths: string[] = [];
+    const audioDurations: number[] = [];
+    const videoChunks: string[] = [];
     const silencePath = './assets/tts/silence.mp3';
+
     const article = await this.conversationModel.findById(articleId).lean();
     const script = article.script;
+
+    const folderPath = `./assets/tts/${articleId}`;
+    if (!fs.existsSync(folderPath)) {
+      fs.mkdirSync(folderPath, { recursive: true });
+    }
+
+    const tempVideoDir = `./assets/temp/${articleId}`;
+    if (!fs.existsSync(tempVideoDir)) {
+      fs.mkdirSync(tempVideoDir, { recursive: true});
+    }
+
     for (let i = 0; i < script.length; i++) {
       const line = script[i];
       const speakerKey = Object.keys(line)[0];
       const sentence = line[speakerKey];
 
       const speaker = speakerKey === 'user1' ? 'ndain' : 'njinho';
+      const videoSource = speakerKey === 'user1'
+      ? './assets/video/video_user1.mp4'
+      : './assets/video/video_user2.mp4';
 
-      const folderPath = `./assets/tts/${articleId}`;
-      if (!fs.existsSync(folderPath)) {
-        fs.mkdirSync(folderPath, { recursive: true });
-      }
       const filePath = `${folderPath}/${i}_${speakerKey}.mp3`;
       const audioPath = await this.createAudioFromText(
         sentence,
@@ -174,24 +235,33 @@ export class ReelsService {
       if (!fs.existsSync(audioPath)) {
         throw new NotFoundException(`${audioPath} not found`);
       }
-
       audioPaths.push(audioPath);
 
-      if (i < script.length - 1) {
-        // 자연스러운 대화를 위해 대사 사이에 1초 공백 삽입
-        audioPaths.push(silencePath);
-      }
+      const duration = await this.getAudioDuration(audioPath);
+      audioDurations.push(duration);
+
+      const videoChunkPath = `${tempVideoDir}/chunk_${i}.mp4`;
+      await this.extractVideoSegment(videoSource, 0, duration, videoChunkPath);
+      videoChunks.push(videoChunkPath);
+
+      // if (i < script.length - 1) {
+      //   // 자연스러운 대화를 위해 대사 사이에 1초 공백 삽입
+      //   audioPaths.push(silencePath);
+      // }
     }
 
-    const mergedPath = `./assets/tts/${articleId}/concat.mp3`;
-    await this.concatAudioFiles(audioPaths, mergedPath);
+    const mergedAudioPath = `${folderPath}/concat.mp3`;
+    await this.concatAudioFiles(audioPaths, mergedAudioPath);
 
-    return mergedPath;
+    const mergedVideoPath = `./assets/video/${articleId}_merged.mp4`;
+    await this.mergeVideoSegments(videoChunks, mergedVideoPath);
+
+    return mergedAudioPath;
   }
 
   async mergeVideoAndAudio(reelsId: string): Promise<string> {
     ffmpeg.setFfmpegPath(ffmpegPath);
-    const videoInputPath = `./assets/video/Culture.mp4`;
+    const videoInputPath = `./assets/video/${reelsId}_merged.mp4`;
     const audioInputPath = `./assets/tts/${reelsId}/concat.mp3`;
     const outputPath = `./assets/reels/${reelsId}.mp4`;
 
