@@ -4,7 +4,11 @@ FROM node:18 AS builder
 WORKDIR /app
 COPY . .
 RUN npm install
-RUN npm run build
+
+# Node 메모리 증가 후 빌드 실행
+RUN export NODE_OPTIONS="--max-old-space-size=4096" && npm run build
+
+
 
 # Step 2: Run
 FROM node:18
