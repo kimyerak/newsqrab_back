@@ -1,0 +1,17 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1280
+PlayResY: 720
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Noto Sans CJK KR,32,&H00FFFFFF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,2,1,5,10,10,10,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,00:00:00.00,00:00:05.92,Default,,0,0,0,,헐 대박 KT가 AI로 숏폼 영상을 만들었다고? 이게 뭔 소리야?
+Dialogue: 0,00:00:05.92,00:00:14.08,Default,,0,0,0,,맞아! KT가 자체 개발한 AI 기술로 숏폼을 엄청 빠르게 만든대. 원래 1000분 걸리던 작업을 100분 만에 해낸대!
+Dialogue: 0,00:00:14.08,00:00:18.00,Default,,0,0,0,,진짜? 그래서 그냥 빠르게 자르기만 하는 거야?
+Dialogue: 0,00:00:18.00,00:00:25.82,Default,,0,0,0,,아니 AI가 자막 달고 BGM 넣고 편집까지 한 번에 해주는 거라 더 똑똑해! 필요한 장면 중심으로 자동으로 만들어줘.
+Dialogue: 0,00:00:25.82,00:00:28.96,Default,,0,0,0,,헉 그래서 나온 숏폼은 진짜 괜찮은 거야?
+Dialogue: 0,00:00:28.96,00:00:36.23,Default,,0,0,0,,응 사람 손으로 만든 것처럼 자연스러워. 예를 들어 "해바라기" 영화의 명장면에 멋진 제목까지 붙였어!
