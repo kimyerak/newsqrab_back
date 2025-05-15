@@ -28,7 +28,8 @@ const ffprobeStatic = require('ffprobe-static');
 export class ReelsService {
   constructor(
     @InjectModel(Reels.name) private reelsModel: Model<Reels>,
-    @InjectModel(Conversation.name) private conversationModel: Model<Conversation>,
+    @InjectModel(Conversation.name)
+    private conversationModel: Model<Conversation>,
     @InjectModel(Article.name) private articleModel: Model<Article>,
     private readonly s3Service: S3Service,
   ) {}
@@ -394,16 +395,20 @@ export class ReelsService {
     console.log(reels);
     if (!reels) return null;
 
-    const conversation = await this.conversationModel.findById(reels.conversationId);
-    console.log("conversation", conversation);
-    const article = await this.articleModel.findById(reels.articleId);
-    console.log("article", article);
+    const conversation = await this.conversationModel.findById(
+      reels.conversationId.toString(),
+    );
+    console.log('conversation', conversation);
+    const article = await this.articleModel.findById(
+      reels.articleId.toString(),
+    );
+    console.log('article', article);
 
     if (!conversation || !article) return null;
 
     return {
-      conversation: conversation,
+      conversation,
       articleUrl: article.url,
-    }
+    };
   }
 }
