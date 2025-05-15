@@ -14,8 +14,11 @@ RUN npm run build
 FROM node:18
 
 WORKDIR /app
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package*.json ./
+# 로컬에서 빌드된 dist 복사
+COPY ./dist ./dist
+COPY ./package*.json ./
+
+# 운영환경 의존성만 설치
 
 RUN npm install --only=production
 
