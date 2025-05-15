@@ -41,7 +41,8 @@ npm run start    # 서버 실행
 6. 생성된 대사는 MongoDB에 QnA 스크립트 형태로 저장
 7. 생성된 대사를 음성으로 변환 (TTS)
 8. 배경 영상과 음성, 자막을 FFmpeg로 합쳐 릴스 생성
-9. S3에 업로드 및 DB에 저장
+9. S3에 업로드 및 DB에 저장 (아래 링크에서 확인 가능)
+https://newsqrab.kr.object.ncloudstorage.com/reels/c92fd32d-36c9-4d44-91e0-95df9567747c.mp4
 ```
 
 ---
