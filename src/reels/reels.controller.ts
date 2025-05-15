@@ -206,8 +206,45 @@ export class ReelsController {
   }
 
   @Get(':id/details')
-  @ApiOperation({ summary: '릴스 상세 정보 가져오기', description: '해당 릴스에 사용된 conversation 객체와와 기사 URL을 가져옵니다.' })
-  @ApiResponse({ status: 200, description: '성공적으로 가져왔습니다.' })
+  @ApiOperation({ summary: '릴스 상세 정보 가져오기', description: '릴스의 id를 입력하면 해당 릴스에 사용된 conversation 객체와와 기사 URL을 가져옵니다.' })
+  @ApiResponse({ 
+    status: 200, 
+    description: '성공적으로 가져왔습니다.',
+    schema: {
+      example: {
+          "conversation": {
+            "_id": "68259250ab77d048e4ecad46",
+            "script": [
+              {
+                "user1": "헐 대박, 전광훈 목사가 알뜰폰 회사 만든 거였어?"
+              },
+              {
+                "user2": "응, 퍼스트모바일이라는 브랜드인데, 전 목사가 70억 원을 투자했다고 해!"
+              },
+              {
+                "user1": "진짜? 그 회사가 개인정보 문제로 벌금을 받았다던데, 왜 그런 거야?"
+              },
+              {
+                "user2": "가입자의 주민등록번호 암호화도 안 하고, 개인정보 수집 동의도 제대로 안 받았대. 그래서 과태료 1200만 원 부과됐어!"
+              },
+              {
+                "user1": "헉 그래서 대국본이랑 촛불행동도 한 소리 들은 거야?"
+              },
+              {
+                "user2": "맞아! 둘 다 개인정보 수집 방법에 문제가 있어서 시정명령을 받았대!"
+              }
+            ],
+            "parentId": "68259250ab77d048e4ecad46",
+            "articleId": "68259244ab77d048e4ecad42",
+            "type": "original",
+            "createdAt": "2025-05-15T07:05:52.564Z",
+            "updatedAt": "2025-05-15T07:05:52.564Z",
+            "__v": 0
+          },
+          "articleUrl": "https://n.news.naver.com/mnews/article/008/0005194456"
+      },
+    },
+   })
   async getReelsDetails(@Param('id') id: string) {
     const result = await this.reelsService.getReelsDetails(id);
     if (!result) {
