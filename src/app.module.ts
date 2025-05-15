@@ -19,7 +19,7 @@ import { ConversationModule } from './conversation/conversation.module';
     ConfigModule.forRoot({
       isGlobal: true, // 전역으로 사용
     }),
-    MongooseModule.forRoot('mongodb://127.0.0.1:27017/newsqrab'),
+    MongooseModule.forRoot(process.env.MONGODB_URI),
     AuthModule,
     UserModule,
     ArticleModule,
