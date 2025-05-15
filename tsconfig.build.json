@@ -1,4 +1,7 @@
 {
   "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist" // 🔥 dist 폴더에 빌드 결과 저장
+  },
   "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
 }
