@@ -136,12 +136,12 @@ export class ConversationService {
     // 4. RAG 서버에 본문과 스크립트 모두 전송
     const ragServerUrl =
       this.configService.get<string>('RAG_SERVER_URL') ??
-      'http://localhost:8000/rag';
+      'http://localhost:8000';
 
     let ragScriptText = '';
     try {
       const response = await axios.post<{ script: string }>(
-        `${ragServerUrl}/filter`,
+        `${ragServerUrl}/rag`,
         {
           content: article.content,
           originalScript: originalScriptText,

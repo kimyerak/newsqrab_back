@@ -157,7 +157,7 @@ export class ReelsService {
     const duration = info.streams[0].duration;
     return parseFloat(duration);
   }
-  
+
   async extractVideoSegment(
     inputPath: string,
     startTime: number,
@@ -166,34 +166,36 @@ export class ReelsService {
   ): Promise<void> {
     return new Promise((resolve, reject) => {
       ffmpeg(inputPath)
-      .setStartTime(0)
-      .setDuration(duration)
-      .output(outputPath)
-      .on('end', resolve)
-      .on('error', reject)
-      .run();
-    })
+        .setStartTime(0)
+        .setDuration(duration)
+        .output(outputPath)
+        .on('end', resolve)
+        .on('error', reject)
+        .run();
+    });
   }
 
   async mergeVideoSegments(
     chunkPaths: string[],
-    outputPath: string
+    outputPath: string,
   ): Promise<void> {
     const concatFilePath = './assets/temp/concat.txt';
 
-    const concatList = chunkPaths.map((p) => `file '${path.resolve(p)}'`).join('\n');
+    const concatList = chunkPaths
+      .map((p) => `file '${path.resolve(p)}'`)
+      .join('\n');
     fs.writeFileSync(concatFilePath, concatList, { encoding: 'utf8' });
 
     return new Promise((resolve, reject) => {
       ffmpeg()
-      .input(concatFilePath)
-      .inputOptions(['-f concat', '-safe 0'])
-      .outputOptions(['-c copy'])
-      .output(outputPath)
-      .on('end', resolve)
-      .on('error', reject)
-      .run();
-    })
+        .input(concatFilePath)
+        .inputOptions(['-f concat', '-safe 0'])
+        .outputOptions(['-c copy'])
+        .output(outputPath)
+        .on('end', resolve)
+        .on('error', reject)
+        .run();
+    });
   }
 
   async createAudioFromConversation(articleId: string): Promise<string> {
@@ -212,7 +214,7 @@ export class ReelsService {
 
     const tempVideoDir = `./assets/temp/${articleId}`;
     if (!fs.existsSync(tempVideoDir)) {
-      fs.mkdirSync(tempVideoDir, { recursive: true});
+      fs.mkdirSync(tempVideoDir, { recursive: true });
     }
 
     for (let i = 0; i < script.length; i++) {
@@ -221,9 +223,10 @@ export class ReelsService {
       const sentence = line[speakerKey];
 
       const speaker = speakerKey === 'user1' ? 'ndain' : 'njinho';
-      const videoSource = speakerKey === 'user1'
-      ? './assets/video/video_user1.mp4'
-      : './assets/video/video_user2.mp4';
+      const videoSource =
+        speakerKey === 'user1'
+          ? './assets/video/video_user1.mp4'
+          : './assets/video/video_user2.mp4';
 
       const filePath = `${folderPath}/${i}_${speakerKey}.mp3`;
       const audioPath = await this.createAudioFromText(
