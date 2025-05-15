@@ -1,0 +1,17 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1280
+PlayResY: 720
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Noto Sans CJK KR,32,&H00FFFFFF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,2,1,5,10,10,10,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,00:00:00.00,00:00:07.00,Default,,0,0,0,,헐 대박 LG유플러스가 보이스피싱 예방을 그렇게 잘해? 어떻게 그렇게 많이 잡았대?
+Dialogue: 0,00:00:07.00,00:00:16.17,Default,,0,0,0,,맞아 진짜 대단하지! AI 시스템으로 악성 앱을 찾고 경찰과 공조해서 3개월 만에 2000억 원어치 피해를 막았대!
+Dialogue: 0,00:00:16.17,00:00:21.47,Default,,0,0,0,,헉 그럼 경찰이랑 협업도 엄청 잘하나보다? 어떻게 도와주는 거야?
+Dialogue: 0,00:00:21.47,00:00:29.56,Default,,0,0,0,,그래! LG유플러스가 악성 앱과 착신 전환 번호 같은 정보를 경찰에 주고 경찰은 피해자 집까지 가서 도와주고 있어!
+Dialogue: 0,00:00:29.56,00:00:36.28,Default,,0,0,0,,진짜 철통 보안이네. 이거 믿고 써도 괜찮겠다! 다른 방법도 있어?
+Dialogue: 0,00:00:36.28,00:00:44.37,Default,,0,0,0,,당연하지! 해외 보이스피싱 조직이 쓰는 장비도 추적하고 수상한 번호 차단까지! 점점 더 스마트해지는 중이야!

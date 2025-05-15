@@ -5,8 +5,8 @@ WORKDIR /app
 COPY . .
 RUN npm install
 
-# Node 메모리 증가 후 빌드 실행
-RUN export NODE_OPTIONS="--max-old-space-size=4096" && npm run build
+ENV NODE_OPTIONS=--max-old-space-size=1024
+RUN npm run build
 
 
 
