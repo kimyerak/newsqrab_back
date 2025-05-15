@@ -5,7 +5,7 @@ import { Article } from './article.schema';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { crawlNaverNewsContent } from '../utils/naver-crawler';
 import { ReelsService } from '../reels/reels.service';
-import { ConversationService } from '../conversation/conversation.service'; 
+import { ConversationService } from '../conversation/conversation.service';
 
 @Injectable()
 export class ArticleService {
