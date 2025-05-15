@@ -1,0 +1,17 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1280
+PlayResY: 720
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Noto Sans CJK KR,40,&H00FFFFFF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,2,1,5,10,10,10,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,00:00:00.00,00:00:03.31,Default,,0,0,0,,헐 테무가 왜 갑자기 과징금 받았대?
+Dialogue: 0,00:00:03.31,00:00:09.88,Default,,0,0,0,,테무가 이용자들 몰래 개인 정보를 해외로 넘겼대. 그래서 13억 6900만 원의 과징금을 받았어!
+Dialogue: 0,00:00:09.88,00:00:13.46,Default,,0,0,0,,진짜? 정보 국외 이전을 왜 몰래 했지?
+Dialogue: 0,00:00:13.46,00:00:20.97,Default,,0,0,0,,테무가 여러 나라 업체에 개인 정보를 넘기면서도 사용자에게 알리지 않았거든. 보호법에 따르면 공개해야 하는데 안 지킨 거지.
+Dialogue: 0,00:00:20.97,00:00:23.75,Default,,0,0,0,,헉 그래서 지금은 어떻게 됐어?
+Dialogue: 0,00:00:23.75,00:00:31.53,Default,,0,0,0,,개인정보위 조사 후에 테무가 국내 대리인도 지정하고 정보 이전 사실을 공개하는 방향으로 조금씩 시정 조치를 하고 있대.

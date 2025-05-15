@@ -179,10 +179,10 @@ export class ReelsService {
     chunkPaths: string[],
     outputPath: string,
   ): Promise<void> {
-    const concatFilePath = './assets/temp/concat.txt';
+    const concatFilePath = path.resolve('./assets/temp/concat.txt');
 
     const concatList = chunkPaths
-      .map((p) => `file '${path.resolve(p)}'`)
+      .map((p) => `file '${path.resolve(p).replace(/\\/g, '/')}'`) // Windows 경로 슬래시 통일
       .join('\n');
     fs.writeFileSync(concatFilePath, concatList, { encoding: 'utf8' });
 
