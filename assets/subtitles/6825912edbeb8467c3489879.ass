@@ -1,0 +1,17 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1280
+PlayResY: 720
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Noto Sans CJK KR,40,&H00FFFFFF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,2,1,5,10,10,10,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,00:00:00.00,00:00:05.11,Default,,0,0,0,,헐 대박 국민의힘이 후보를 바꾸려고 했다고? 어떻게 된 거야?
+Dialogue: 0,00:00:05.11,00:00:13.67,Default,,0,0,0,,맞아 김문수 후보를 한덕수 전 총리로 교체하려고 했는데 당원 투표에서 무산됐어. 그래서 김문수 후보가 그대로 대선 후보로 남았어.
+Dialogue: 0,00:00:13.67,00:00:17.23,Default,,0,0,0,,진짜? 당 안에서 엄청 반발했겠다?
+Dialogue: 0,00:00:17.23,00:00:24.57,Default,,0,0,0,,응 당 안팎에서 "정치 쿠데타"라며 비판이 쏟아졌어. 이번 일로 당의 민주주의가 위협받았다는 이야기였지.
+Dialogue: 0,00:00:24.57,00:00:27.50,Default,,0,0,0,,헉 그래서 지금 당 분위기는 어때?
+Dialogue: 0,00:00:27.50,00:00:34.87,Default,,0,0,0,,김문수 후보는 원팀을 강조하며 갈등을 봉합하려 했지만 여전히 당 안에서는 이번 사태의 책임을 물어야 한다는 목소리가 커.

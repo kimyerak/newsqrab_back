@@ -28,8 +28,8 @@ const ffprobeStatic = require('ffprobe-static');
 export class ReelsService {
   constructor(
     @InjectModel(Reels.name) private reelsModel: Model<Reels>,
-    @InjectModel(Conversation.name)
-    private conversationModel: Model<Conversation>,
+    @InjectModel(Conversation.name) private conversationModel: Model<Conversation>,
+    @InjectModel(Article.name) private articleModel: Model<Article>,
     private readonly s3Service: S3Service,
   ) {}
 
@@ -198,21 +198,21 @@ export class ReelsService {
     });
   }
 
-  async createAudioFromConversation(articleId: string): Promise<string> {
+  async createAudioFromConversation(conversatonId: string): Promise<string> {
     const audioPaths: string[] = [];
     const audioDurations: number[] = [];
     const videoChunks: string[] = [];
     const silencePath = './assets/tts/silence.mp3';
 
-    const article = await this.conversationModel.findById(articleId).lean();
+    const article = await this.conversationModel.findById(conversatonId).lean();
     const script = article.script;
 
-    const folderPath = `./assets/tts/${articleId}`;
+    const folderPath = `./assets/tts/${conversatonId}`;
     if (!fs.existsSync(folderPath)) {
       fs.mkdirSync(folderPath, { recursive: true });
     }
 
-    const tempVideoDir = `./assets/temp/${articleId}`;
+    const tempVideoDir = `./assets/temp/${conversatonId}`;
     if (!fs.existsSync(tempVideoDir)) {
       fs.mkdirSync(tempVideoDir, { recursive: true });
     }
@@ -256,7 +256,7 @@ export class ReelsService {
     const mergedAudioPath = `${folderPath}/concat.mp3`;
     await this.concatAudioFiles(audioPaths, mergedAudioPath);
 
-    const mergedVideoPath = `./assets/video/${articleId}_merged.mp4`;
+    const mergedVideoPath = `./assets/video/${conversatonId}_merged.mp4`;
     await this.mergeVideoSegments(videoChunks, mergedVideoPath);
 
     return mergedAudioPath;
@@ -386,5 +386,24 @@ export class ReelsService {
     });
 
     return newReels;
+  }
+
+  async getReelsDetails(reelsId: string) {
+    console.log(reelsId);
+    const reels = await this.reelsModel.findById(reelsId);
+    console.log(reels);
+    if (!reels) return null;
+
+    const conversation = await this.conversationModel.findById(reels.conversationId);
+    console.log("conversation", conversation);
+    const article = await this.articleModel.findById(reels.articleId);
+    console.log("article", article);
+
+    if (!conversation || !article) return null;
+
+    return {
+      conversation: conversation,
+      articleUrl: article.url,
+    }
   }
 }

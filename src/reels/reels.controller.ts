@@ -1,4 +1,4 @@
-import { Controller, Post, Put, Param, Body, Get } from '@nestjs/common';
+import { Controller, Post, Put, Param, Body, Get, NotFoundException } from '@nestjs/common';
 import { ReelsService } from './reels.service';
 import { CreateReelsDto } from './dto/create-reels.dto';
 import { UpdateReelsDto } from './dto/update-reels.dto';
@@ -203,5 +203,16 @@ export class ReelsController {
       body.character2,
       body.createdBy,
     );
+  }
+
+  @Get(':id/details')
+  @ApiOperation({ summary: '릴스 상세 정보 가져오기', description: '해당 릴스에 사용된 conversation 객체와와 기사 URL을 가져옵니다.' })
+  @ApiResponse({ status: 200, description: '성공적으로 가져왔습니다.' })
+  async getReelsDetails(@Param('id') id: string) {
+    const result = await this.reelsService.getReelsDetails(id);
+    if (!result) {
+      throw new NotFoundException('Reels not found');
+    }
+    return result;
   }
 }
