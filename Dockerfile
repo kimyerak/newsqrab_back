@@ -5,6 +5,7 @@ RUN apt-get update && apt-get install -y \
     wget \
     ca-certificates \
     fonts-liberation \
+    fonts-noto-cjk \
     libappindicator3-1 \
     libasound2 \
     libatk-bridge2.0-0 \
@@ -24,14 +25,20 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends \
  && rm -rf /var/lib/apt/lists/*
 
+
+
 WORKDIR /app
 
 # ✅ 로컬에서 미리 빌드된 dist 폴더만 복사
 COPY ./dist ./dist
 COPY ./package*.json ./
+COPY .env ./
 
 # ✅ 프로덕션 의존성만 설치
 RUN npm install --only=production
+
+# ✅ 볼륨: host의 assets 폴더를 container와 공유
+VOLUME [ "/app/assets" ]
 
 EXPOSE 3000
 CMD ["node", "dist/src/main"]
