@@ -136,7 +136,7 @@ export class ConversationService {
     // 4. RAG 서버에 본문과 스크립트 모두 전송
     const ragServerUrl =
       this.configService.get<string>('RAG_SERVER_URL') ??
-      'http://host.docker.internal:8000';
+      'http://localhost:8000';
 
     console.log('📝 [RAG 요청 준비]');
     console.log('➡️ RAG URL:', `${ragServerUrl}/rag`);
