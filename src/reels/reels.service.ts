@@ -407,8 +407,9 @@ export class ReelsService {
     if (!conversation || !article) return null;
 
     return {
-      conversation,
       articleUrl: article.url,
+      conversation,
+      reels
     };
   }
 }
