@@ -2,6 +2,8 @@
 
 **Newsqrab**의 백엔드 서버는 NestJS 기반으로 구축되었으며, MongoDB를 통해 기사 데이터를 저장·관리하고, OpenAI 및 Puppeteer를 활용해 자동 요약과 영상 콘텐츠 생성을 수행합니다.  
 뉴스를 **자동 수집 → 친근한 대사형식 요약 생성(QnA 형식 + TTS) → 릴스 형태로 제작 (ASS형식의 자막)  → 저장 및 제공**하는 end-to-end 서비스 백엔드입니다.
+![image](https://github.com/user-attachments/assets/b0ce4bc3-d1f3-40e7-ab6d-b69065b76fdf)
+
 
 ---
 
