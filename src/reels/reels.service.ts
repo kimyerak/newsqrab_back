@@ -223,11 +223,34 @@ export class ReelsService {
       const speakerKey = Object.keys(line)[0];
       const sentence = line[speakerKey];
 
-      const speaker = speakerKey === 'user1' ? 'ndain' : 'njinho';
-      const videoSource =
-        speakerKey === 'user1'
-          ? './assets/video/video_user1.mp4'
-          : './assets/video/video_user2.mp4';
+      const speakerMap = {
+        user1: {
+          speaker: 'ndain',
+          videoSource: './assets/video/video_user1.mp4',
+        },
+        user2: {
+          speaker: 'njinho',
+          videoSource: './assets/video/video_user2.mp4',
+        },
+        user3: {
+          speaker: 'nkyuwon',
+          videoSource: './assets/video/video_user3.mp4',
+        },
+        user4: {
+          speaker: 'nminjeong',
+          videoSource: './assets/video/video_user4.mp4',
+        },
+      };
+
+      const selected = speakerMap[speakerKey];
+
+      if (!selected) {
+        console.error(`Unknown speakerKey: ${speakerKey}`);
+        // fallback 처리하거나 에러를 던질 수 있음
+      }
+
+      const speaker = selected.speaker;
+      const videoSource = selected.videoSource;
 
       const filePath = `${folderPath}/${i}_${speakerKey}.mp3`;
       const audioPath = await this.createAudioFromText(
