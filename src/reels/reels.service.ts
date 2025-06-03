@@ -89,6 +89,10 @@ export class ReelsService {
     return this.reelsModel.find().sort({ views: -1 }).exec();
   }
 
+  async getLatestReels() {
+    return this.reelsModel.find().sort({ createdAt: -1 }).exec();
+  }
+
   async createAudioFromText(
     sentence: string,
     speaker: string,
