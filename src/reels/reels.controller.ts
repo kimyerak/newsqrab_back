@@ -77,6 +77,14 @@ export class ReelsController {
   getReelsSortedByViews(): Promise<Reels[]> {
     return this.reelsService.getReelsSortedByViews();
   }
+
+  @Get('sorted/latest')
+  @ApiOperation({ summary: '최신순으로 릴스 정렬'})
+  @ApiResponse({ status: 200, type: [Reels]})
+  getLatestReels(): Promise<Reels[]> {
+    return this.reelsService.getLatestReels();
+  }
+
   @Put(':id/views')
   incrementViews(@Param('id') id: string) {
     return this.reelsService.incrementViews(id);
