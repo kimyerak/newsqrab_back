@@ -226,19 +226,19 @@ export class ReelsService {
       const speakerMap = {
         user1: {
           speaker: 'ndain',
-          videoSource: './assets/video/video_user1.mp4',
+          videoSource: './assets/video/fish',
         },
         user2: {
           speaker: 'njinho',
-          videoSource: './assets/video/video_user2.mp4',
+          videoSource: './assets/video/crab',
         },
         user3: {
           speaker: 'nkyuwon',
-          videoSource: './assets/video/video_user3.mp4',
+          videoSource: './assets/video/octopus',
         },
         user4: {
           speaker: 'nminjeong',
-          videoSource: './assets/video/video_user4.mp4',
+          videoSource: './assets/video/starfish',
         },
       };
 
@@ -250,7 +250,7 @@ export class ReelsService {
       }
 
       const speaker = selected.speaker;
-      const videoSource = selected.videoSource;
+      const videoSource = i%2 == 0? `${selected.videoSource}_up.mp4` : `${selected.videoSource}_down.mp4`;
 
       const filePath = `${folderPath}/${i}_${speakerKey}.mp3`;
       const audioPath = await this.createAudioFromText(
