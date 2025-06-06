@@ -50,6 +50,8 @@ export function generateOriginalPrompt(
 - 질문자 (${character1.name}): ${character1.style} (예: "${character1.example}")
 - 답변자 (${character2.name}): ${character2.style} (예: "${character2.example}")
 - 총 3개의 QnA로 구성해주세요. (각 QnA는 질문 + 대답 세트)
+- 각 질문과 답변은 너무 길지 않게, 한두 문장 정도의 짧고 간결한 대사로 작성해주세요.
+- 대사가 너무 설명식이 되지 않도록, 실제 캐릭터가 말하듯 자연스럽고 짧게 표현해주세요.
 - 형식은 다음과 같이 작성해주세요:
 
 ${characterA}: [질문1]  

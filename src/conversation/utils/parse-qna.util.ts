@@ -1,7 +1,9 @@
 // ✅ parse-qna.util.ts
 export function parseQnAScript(
   text: string,
-): { user1?: string; user2?: string }[] {
+  character1: string,
+  character2: string,
+): { [key: string]: string }[] {
   const lines = text
     .split('\n')
     .map((line) => line.trim())
@@ -9,11 +11,12 @@ export function parseQnAScript(
   const script = [];
 
   for (const line of lines) {
-    if (line.startsWith('user1:')) {
-      script.push({ user1: line.replace('user1:', '').trim() });
-    } else if (line.startsWith('user2:')) {
-      script.push({ user2: line.replace('user2:', '').trim() });
+    if (line.startsWith(`${character1}:`)) {
+      script.push({ [character1]: line.replace(`${character1}:`, '').trim() });
+    } else if (line.startsWith(`${character2}:`)) {
+      script.push({ [character2]: line.replace(`${character2}:`, '').trim() });
     }
   }
+
   return script;
 }

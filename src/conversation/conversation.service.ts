@@ -69,7 +69,7 @@ export class ConversationService {
       character2,
     );
     const gptResponse = await this.openAiService.generateText(prompt);
-    const script = parseQnAScript(gptResponse);
+    const script = parseQnAScript(gptResponse, character1, character2);
 
     const conversation = await this.conversationModel.create({
       script,
@@ -161,7 +161,7 @@ export class ConversationService {
       ) + `\n\n유저 요청: ${userRequest}\n\n기존 대사:\n${originalScriptText}`;
 
     const gptResponse = await this.openAiService.generateText(prompt);
-    const script = parseQnAScript(gptResponse);
+    const script = parseQnAScript(gptResponse, character1, character2);
 
     return await this.conversationModel.create({
       script,
@@ -270,7 +270,7 @@ export class ConversationService {
       character2,
     });
 
-    const script = parseQnAScript(response.data.script);
+    const script = parseQnAScript(response.data.script, character1, character2);
 
     return await this.conversationModel.create({
       script,
