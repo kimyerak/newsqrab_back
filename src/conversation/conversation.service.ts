@@ -57,13 +57,17 @@ export class ConversationService {
   // }
   async generateOriginalConversation(
     articleId: string,
-    user1: keyof typeof CHARACTER_STYLE,
-    user2: keyof typeof CHARACTER_STYLE,
+    character1: keyof typeof CHARACTER_STYLE,
+    character2: keyof typeof CHARACTER_STYLE,
   ) {
     const article = await this.articleModel.findById(articleId);
     if (!article) throw new NotFoundException();
 
-    const prompt = generateOriginalPrompt(article.content, user1, user2);
+    const prompt = generateOriginalPrompt(
+      article.content,
+      character1,
+      character2,
+    );
     const gptResponse = await this.openAiService.generateText(prompt);
     const script = parseQnAScript(gptResponse);
 
@@ -72,8 +76,8 @@ export class ConversationService {
       type: 'original',
       parentId: new Types.ObjectId(),
       articleId: new Types.ObjectId(articleId),
-      user1,
-      user2,
+      character1,
+      character2,
     });
 
     conversation.parentId = new Types.ObjectId(conversation._id as string);
@@ -134,8 +138,8 @@ export class ConversationService {
     parentId: string,
     userRequest: string,
     articleId: string,
-    user1: keyof typeof CHARACTER_STYLE,
-    user2: keyof typeof CHARACTER_STYLE,
+    character1: keyof typeof CHARACTER_STYLE,
+    character2: keyof typeof CHARACTER_STYLE,
   ) {
     const [article, parent] = await Promise.all([
       this.articleModel.findById(articleId),
@@ -152,8 +156,8 @@ export class ConversationService {
         article.content,
         originalScriptText,
         userRequest,
-        user1,
-        user2,
+        character1,
+        character2,
       ) + `\n\n유저 요청: ${userRequest}\n\n기존 대사:\n${originalScriptText}`;
 
     const gptResponse = await this.openAiService.generateText(prompt);
@@ -164,8 +168,8 @@ export class ConversationService {
       type: 'user-modified',
       parentId: new Types.ObjectId(parentId),
       articleId: new Types.ObjectId(articleId),
-      user1,
-      user2,
+      character1,
+      character2,
     });
   }
 
@@ -242,8 +246,8 @@ export class ConversationService {
   async generateRagModifiedConversation(
     articleId: string,
     parentId: string,
-    user1: string,
-    user2: string,
+    character1: string,
+    character2: string,
   ) {
     const [article, parent] = await Promise.all([
       this.articleModel.findById(articleId),
@@ -262,8 +266,8 @@ export class ConversationService {
     const response = await axios.post(`${ragServerUrl}/rag`, {
       content: article.content,
       originalScript: originalScriptText,
-      user1,
-      user2,
+      character1,
+      character2,
     });
 
     const script = parseQnAScript(response.data.script);
@@ -273,8 +277,8 @@ export class ConversationService {
       type: 'rag-modified',
       parentId: new Types.ObjectId(parentId),
       articleId: new Types.ObjectId(articleId),
-      user1,
-      user2,
+      character1,
+      character2,
     });
   }
 }
