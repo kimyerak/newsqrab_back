@@ -25,8 +25,8 @@ export class ConversationController {
       type: 'object',
       properties: {
         articleId: { type: 'string' },
-        character1: { type: 'string', example: '큐랩이' },
-        character2: { type: 'string', example: '큐복이' },
+        character1: { type: 'string', example: 'crab, octopus' },
+        character2: { type: 'string', example: 'bok, starfish' },
       },
     },
   })
@@ -56,8 +56,8 @@ export class ConversationController {
         parentId: { type: 'string' },
         userRequest: { type: 'string' },
         articleId: { type: 'string' },
-        character1: { type: 'string', example: '큐랩이이' },
-        character2: { type: 'string', example: '큐복이' },
+        character1: { type: 'string', example: 'crab, octopus' },
+        character2: { type: 'string', example: 'bok, starfish' },
       },
     },
   })
@@ -86,8 +86,8 @@ export class ConversationController {
       properties: {
         articleId: { type: 'string' },
         parentConversationId: { type: 'string' },
-        character1: { type: 'string', example: '큐랩이' },
-        character2: { type: 'string', example: '큐복이' },
+        character1: { type: 'string', example: 'crab, octopus' },
+        character2: { type: 'string', example: 'bok, starfish' },
       },
       required: ['articleId', 'parentConversationId'],
     },
@@ -108,7 +108,7 @@ export class ConversationController {
   }
 
   @Post(':id/confirm')
-  @ApiOperation({ summary: '대사 최종 컨펌 → ASS 자막 파일 저장' })
+  @ApiOperation({ summary: '(TTS만든 후 호출하기!) 대사 ASS 자막 파일 저장' })
   @ApiParam({ name: 'id', description: 'Conversation ID', type: 'string' })
   @ApiResponse({ status: 200, description: 'ASS 자막 파일 생성 완료' })
   async confirmFinalConversation(@Param('id') conversationId: string) {
