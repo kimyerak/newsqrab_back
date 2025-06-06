@@ -228,20 +228,20 @@ export class ReelsService {
       const sentence = line[speakerKey];
 
       const speakerMap = {
-        user1: {
-          speaker: 'ndain',
+        crab: {
+          speaker: 'nsujin',
           videoSource: './assets/video/fish',
         },
-        user2: {
-          speaker: 'njinho',
+        octopus: {
+          speaker: 'njihun',
           videoSource: './assets/video/crab',
         },
-        user3: {
-          speaker: 'nkyuwon',
+        bok: {
+          speaker: 'njoonyoung',
           videoSource: './assets/video/octopus',
         },
-        user4: {
-          speaker: 'nminjeong',
+        starfish: {
+          speaker: 'nmeow',
           videoSource: './assets/video/starfish',
         },
       };
