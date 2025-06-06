@@ -229,16 +229,16 @@ export class ReelsService {
 
       const speakerMap = {
         crab: {
-          speaker: 'nsujin',
-          videoSource: './assets/video/fish',
+          speaker: 'nshasha',
+          videoSource: './assets/video/crab',
         },
         octopus: {
           speaker: 'njihun',
-          videoSource: './assets/video/crab',
+          videoSource: './assets/video/octopus',
         },
         bok: {
           speaker: 'njoonyoung',
-          videoSource: './assets/video/octopus',
+          videoSource: './assets/video/fish',
         },
         starfish: {
           speaker: 'nmeow',
