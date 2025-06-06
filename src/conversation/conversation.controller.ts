@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Param } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -8,6 +8,7 @@ import {
 } from '@nestjs/swagger';
 import { ConversationService } from './conversation.service';
 import { SubtitleService } from './subtitle.service';
+import { CHARACTER_STYLE } from '../openai/prompts/prompt_article';
 
 @ApiTags('Conversation') // Swagger에서 그룹화될 이름
 @Controller('conversation')
@@ -22,12 +23,24 @@ export class ConversationController {
   @ApiBody({
     schema: {
       type: 'object',
-      properties: { articleId: { type: 'string' } },
+      properties: {
+        articleId: { type: 'string' },
+        user1: { type: 'string', example: 'user1' },
+        user2: { type: 'string', example: 'user2' },
+      },
     },
   })
   @ApiResponse({ status: 201, description: 'Original 대화 생성 성공' })
-  async generateOriginal(@Body('articleId') articleId: string) {
-    return this.conversationService.generateOriginalConversation(articleId);
+  async generateOriginal(
+    @Body('articleId') articleId: string,
+    @Body('user1') user1: keyof typeof CHARACTER_STYLE,
+    @Body('user2') user2: keyof typeof CHARACTER_STYLE,
+  ) {
+    return this.conversationService.generateOriginalConversation(
+      articleId,
+      user1,
+      user2,
+    );
   }
 
   @Post('generate/user-modified')
@@ -43,6 +56,8 @@ export class ConversationController {
         parentId: { type: 'string' },
         userRequest: { type: 'string' },
         articleId: { type: 'string' },
+        user1: { type: 'string', example: 'user1' },
+        user2: { type: 'string', example: 'user2' },
       },
       example: {
         articleId: '66a8d5dcdc25ea64654b431e',
@@ -56,11 +71,15 @@ export class ConversationController {
     @Body('parentId') parentId: string,
     @Body('userRequest') userRequest: string,
     @Body('articleId') articleId: string,
+    @Body('user1') user1: keyof typeof CHARACTER_STYLE,
+    @Body('user2') user2: keyof typeof CHARACTER_STYLE,
   ) {
     return this.conversationService.generateUserModifiedConversation(
       parentId,
       userRequest,
       articleId,
+      user1,
+      user2,
     );
   }
 
@@ -72,6 +91,8 @@ export class ConversationController {
       properties: {
         articleId: { type: 'string' },
         parentConversationId: { type: 'string' },
+        user1: { type: 'string', example: 'user1' },
+        user2: { type: 'string', example: 'user2' },
       },
       required: ['articleId', 'parentConversationId'],
     },
@@ -80,10 +101,14 @@ export class ConversationController {
   async generateRagModified(
     @Body('articleId') articleId: string,
     @Body('parentConversationId') parentConversationId: string,
+    @Body('user1') user1: string,
+    @Body('user2') user2: string,
   ) {
     return this.conversationService.generateRagModifiedConversation(
       articleId,
       parentConversationId,
+      user1,
+      user2,
     );
   }
 

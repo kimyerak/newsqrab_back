@@ -102,7 +102,7 @@ export class ReelsService {
       data: qs.stringify({
         speaker: speaker,
         volume: '0',
-        speed: '-1',
+        speed: '-2',
         pitch: '0',
         text: sentence,
         format: 'mp3',
@@ -409,7 +409,7 @@ export class ReelsService {
     return {
       articleUrl: article.url,
       conversation,
-      reels
+      reels,
     };
   }
 }
