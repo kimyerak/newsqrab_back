@@ -7,7 +7,10 @@ export class Conversation extends Document {
     type: [{ type: Object, required: true }],
     required: true,
   })
-  script: { user1?: string; user2?: string }[];
+  script: { user1?: string; user2?: string; imageUrl?: string }[];
+
+  @Prop({ required: true })
+  title: string;
 
   @Prop({ required: true, type: Types.ObjectId })
   parentId: Types.ObjectId;

@@ -12,9 +12,6 @@ export class Article extends Document {
   @Prop({ nullable: true })
   imgurl: string;
 
-  @Prop({ nullable: true })
-  generatedImageUrl?: string;
-
   @Prop({ required: true })
   createdBy: string;
 

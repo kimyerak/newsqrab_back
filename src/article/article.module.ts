@@ -5,8 +5,7 @@ import { ArticleService } from './article.service';
 import { ArticleController } from './article.controller';
 import { ReelsModule } from '../reels/reels.module';
 import { ConversationModule } from '../conversation/conversation.module';
-import { ImageGenerationService } from '../openai/image-generation.service';
-import { S3Module } from '../s3/s3.module'; // ✅ 추가
+import { S3Module } from '../s3/s3.module';
 
 const ArticleModel = MongooseModule.forFeature([
   { name: Article.name, schema: ArticleSchema },
@@ -20,7 +19,7 @@ const ArticleModel = MongooseModule.forFeature([
     S3Module, // ✅ 이 줄 추가해야 S3Service 주입 가능
   ],
   controllers: [ArticleController],
-  providers: [ArticleService, ImageGenerationService],
+  providers: [ArticleService],
   exports: [ArticleModel],
 })
 export class ArticleModule {}

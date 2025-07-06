@@ -1,4 +1,3 @@
-// ✅ conversation.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -13,16 +12,19 @@ import {
 } from '../openai/prompts/prompt_article';
 import { Article } from '../article/article.schema';
 import { ConfigService } from '@nestjs/config';
+import { ImageGenerationService } from '../openai/image-generation.service';
+import { generatePromptFromCharacter2Lines } from '../openai/prompts/prompt_image'; // 새 프롬프트 함수
 
 @Injectable()
 export class ConversationService {
   constructor(
     @InjectModel(Conversation.name)
     private conversationModel: Model<Conversation>,
-    @InjectModel(Article.name) // ✅ 이거 추가
-    private articleModel: Model<Article>, // ✅ 이거 추가
+    @InjectModel(Article.name)
+    private articleModel: Model<Article>,
     private readonly openAiService: OpenAiService,
     private readonly configService: ConfigService,
+    private readonly imageGenerationService: ImageGenerationService,
   ) {}
 
   async generateOriginalConversation(
@@ -40,20 +42,37 @@ export class ConversationService {
     );
     const gptResponse = await this.openAiService.generateText(prompt);
     const script = parseQnAScript(gptResponse, character1, character2);
+    const updatedScript = [];
+
+    for (const line of script) {
+      if (line[character2]) {
+        const prompt = generatePromptFromCharacter2Lines([line[character2]]);
+        const imageUrl =
+          await this.imageGenerationService.generateImageAndUpload(prompt);
+        updatedScript.push({
+          [character2]: line[character2],
+          imageUrl,
+        });
+      } else {
+        updatedScript.push(line); // user1 대사면 그대로
+      }
+    }
 
     const conversation = await this.conversationModel.create({
-      script,
+      script: updatedScript,
       type: 'original',
       parentId: new Types.ObjectId(),
       articleId: new Types.ObjectId(articleId),
       character1,
       character2,
+      title: `${character2} explains the article`, // 예시 제목
     });
 
     conversation.parentId = new Types.ObjectId(conversation._id as string);
     await conversation.save();
     return conversation;
   }
+
   async generateUserModifiedConversation(
     parentId: string,
     userRequest: string,
@@ -82,6 +101,16 @@ export class ConversationService {
 
     const gptResponse = await this.openAiService.generateText(prompt);
     const script = parseQnAScript(gptResponse, character1, character2);
+
+    // ✅ 이미지 URL 복사
+    const imageUrl = parent.script.find((line) => line.imageUrl)?.imageUrl;
+    if (imageUrl) {
+      for (const line of script) {
+        if (line[character2]) {
+          line.imageUrl = imageUrl;
+        }
+      }
+    }
 
     return await this.conversationModel.create({
       script,
@@ -121,6 +150,16 @@ export class ConversationService {
     });
 
     const script = parseQnAScript(response.data.script, character1, character2);
+
+    // ✅ 이미지 URL 복사
+    const imageUrl = parent.script.find((line) => line.imageUrl)?.imageUrl;
+    if (imageUrl) {
+      for (const line of script) {
+        if (line[character2]) {
+          line.imageUrl = imageUrl;
+        }
+      }
+    }
 
     return await this.conversationModel.create({
       script,
