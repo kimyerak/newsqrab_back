@@ -10,7 +10,7 @@ export const CHARACTER_STYLE = {
     example: '괜찮아, 내가 정리해줄게! 이건 우리가 꼭 알아야 해.',
   },
   octopus: {
-    name: '큐리어스',
+    name: '옥토푸스',
     role: '답변자',
     mbti: 'ISTJ',
     voice: '중저음, 차분한, 현실적인',

@@ -8,6 +8,9 @@ export function parseQnAScript(
     .split('\n')
     .map((line) => line.trim())
     .filter(Boolean);
+
+  console.log('[🔍 파싱 전 GPT에서 온 결과]', lines);
+
   const script = [];
 
   for (const line of lines) {
@@ -17,6 +20,8 @@ export function parseQnAScript(
       script.push({ [character2]: line.replace(`${character2}:`, '').trim() });
     }
   }
+
+  console.log('[📜 최종 파싱된 script]', script);
 
   return script;
 }

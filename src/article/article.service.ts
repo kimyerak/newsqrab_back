@@ -6,7 +6,6 @@ import { CreateArticleDto } from './dto/create-article.dto';
 import { crawlNaverNewsContent } from '../utils/naver-crawler';
 import { ReelsService } from '../reels/reels.service';
 import { ConversationService } from '../conversation/conversation.service';
-
 @Injectable()
 export class ArticleService {
   constructor(
@@ -20,6 +19,7 @@ export class ArticleService {
     const data = await crawlNaverNewsContent(createArticleDto.url);
     const content = data.content;
     const imgurl = data.imgurl;
+
     const newArticle = new this.articleModel({
       url,
       content,

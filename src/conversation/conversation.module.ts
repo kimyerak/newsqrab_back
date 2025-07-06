@@ -7,6 +7,7 @@ import { ConversationController } from './conversation.controller';
 import { OpenAiService } from '../openai/openai.service';
 import { Article, ArticleSchema } from '../article/article.schema';
 import { SubtitleService } from './subtitle.service';
+import { OpenAiModule } from '../openai/openai.module'; // ✅ 추가
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { SubtitleService } from './subtitle.service';
       { name: Conversation.name, schema: ConversationSchema },
       { name: Article.name, schema: ArticleSchema },
     ]),
+    OpenAiModule,
   ],
   controllers: [ConversationController],
   providers: [ConversationService, OpenAiService, SubtitleService],

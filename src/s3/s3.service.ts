@@ -47,4 +47,26 @@ export class S3Service {
 
     return `https://${this.bucketName}.kr.object.ncloudstorage.com/${key}`;
   }
+  //생성형이미지 저장용
+  async uploadBuffer(
+    folder: string,
+    buffer: Buffer,
+    originalName: string,
+    mimeType = 'image/png',
+  ): Promise<string> {
+    const fileExtension = path.extname(originalName) || '.png';
+    const key = `${folder}/${uuidv4()}${fileExtension}`;
+
+    await this.s3
+      .putObject({
+        Bucket: this.bucketName,
+        Key: key,
+        Body: buffer,
+        ContentType: mimeType,
+        ACL: 'public-read',
+      })
+      .promise();
+
+    return `https://${this.bucketName}.kr.object.ncloudstorage.com/${key}`;
+  }
 }
