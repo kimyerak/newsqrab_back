@@ -85,7 +85,7 @@ export class ConversationController {
       type: 'object',
       properties: {
         articleId: { type: 'string' },
-        parentConversationId: { type: 'string' },
+        parentId: { type: 'string' },
         character1: { type: 'string', example: 'crab, octopus' },
         character2: { type: 'string', example: 'bok, starfish' },
       },
@@ -95,13 +95,13 @@ export class ConversationController {
   @ApiResponse({ status: 201, description: 'RAG-modified 대화 생성 성공' })
   async generateRagModified(
     @Body('articleId') articleId: string,
-    @Body('parentConversationId') parentConversationId: string,
+    @Body('parentId') parentId: string,
     @Body('character1') character1: string,
     @Body('character2') character2: string,
   ) {
     return this.conversationService.generateRagModifiedConversation(
       articleId,
-      parentConversationId,
+      parentId,
       character1,
       character2,
     );
