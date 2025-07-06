@@ -5,7 +5,6 @@ import { Model, Types } from 'mongoose';
 import { Conversation } from './conversation.schema';
 import { parseQnAScript } from './utils/parse-qna.util';
 import { OpenAiService } from '../openai/openai.service';
-import { ImageGenerationService } from '../openai/image-generation.service';
 import axios from 'axios';
 import {
   CHARACTER_STYLE,
@@ -20,11 +19,10 @@ export class ConversationService {
   constructor(
     @InjectModel(Conversation.name)
     private conversationModel: Model<Conversation>,
-    @InjectModel(Article.name)
-    private articleModel: Model<Article>,
+    @InjectModel(Article.name) // ✅ 이거 추가
+    private articleModel: Model<Article>, // ✅ 이거 추가
     private readonly openAiService: OpenAiService,
     private readonly configService: ConfigService,
-    private readonly imageGenerationService: ImageGenerationService,
   ) {}
 
   async generateOriginalConversation(

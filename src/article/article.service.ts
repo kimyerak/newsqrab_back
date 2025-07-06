@@ -6,13 +6,15 @@ import { CreateArticleDto } from './dto/create-article.dto';
 import { crawlNaverNewsContent } from '../utils/naver-crawler';
 import { ReelsService } from '../reels/reels.service';
 import { ConversationService } from '../conversation/conversation.service';
-
+import { ImageGenerationService } from '../openai/image-generation.service';
+import { generateImagePromptFromArticleContent } from 'src/openai/prompts/prompt_image';
 @Injectable()
 export class ArticleService {
   constructor(
     @InjectModel(Article.name) private articleModel: Model<Article>,
     private readonly reelsService: ReelsService,
     private readonly conversationService: ConversationService,
+    private readonly imageGenerationService: ImageGenerationService,
   ) {}
 
   async create(createArticleDto: CreateArticleDto): Promise<Article> {
@@ -20,10 +22,16 @@ export class ArticleService {
     const data = await crawlNaverNewsContent(createArticleDto.url);
     const content = data.content;
     const imgurl = data.imgurl;
+    //예락 - 이미지 생성 및 S3 업로드
+    const prompt = generateImagePromptFromArticleContent(content);
+    const generatedImageUrl =
+      await this.imageGenerationService.generateImageAndUpload(prompt);
+
     const newArticle = new this.articleModel({
       url,
       content,
       imgurl,
+      generatedImageUrl,
       createdBy: 'admin',
     });
     return newArticle.save();

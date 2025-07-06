@@ -10,7 +10,10 @@ export class Article extends Document {
   content: string; // 하이라이팅 가능한 본문
 
   @Prop({ nullable: true })
-  imgurl: string
+  imgurl: string;
+
+  @Prop({ nullable: true })
+  generatedImageUrl?: string;
 
   @Prop({ required: true })
   createdBy: string;
