@@ -2,7 +2,7 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 import puppeteer from 'puppeteer';
 
-export async function crawlNaverNewsContent(url: string): Promise<string> {
+export async function crawlNaverNewsContent(url: string): Promise<{ content: string; imgurl: string | null }> {
   const browser = await puppeteer.launch({
     headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
@@ -36,6 +36,17 @@ export async function crawlNaverNewsContent(url: string): Promise<string> {
       .trim();
   });
 
+  const imgurl = await page.evaluate(() => {
+    const imgElement = document.querySelector(
+      '#dic_area #img1',
+    ) as HTMLImageElement;
+    return imgElement ? imgElement.src : null;
+  });
+
   await browser.close();
-  return content || '기사 본문 로딩 중입니다.';
+
+  return {
+    content: content || '기사 본문 로딩 중입니다.',
+    imgurl: imgurl || null
+  };
 }

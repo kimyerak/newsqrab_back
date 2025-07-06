@@ -17,10 +17,13 @@ export class ArticleService {
 
   async create(createArticleDto: CreateArticleDto): Promise<Article> {
     const { url } = createArticleDto;
-    const content = await crawlNaverNewsContent(createArticleDto.url);
+    const data = await crawlNaverNewsContent(createArticleDto.url);
+    const content = data.content;
+    const imgurl = data.imgurl;
     const newArticle = new this.articleModel({
       url,
       content,
+      imgurl,
       createdBy: 'admin',
     });
     return newArticle.save();
