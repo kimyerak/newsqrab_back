@@ -180,6 +180,38 @@ export class ReelsService {
     });
   }
 
+  async createVideoWithImage(
+    inputPath: string,
+    imageUrl: string,
+    duration: number,
+    outputPath: string,
+  ): Promise<void> {
+    console.log("concat", imageUrl);
+    return new Promise((resolve, reject) => {
+      ffmpeg(inputPath)
+        .input(imageUrl)
+        .setStartTime(0)
+        .setDuration(duration)
+        .complexFilter([
+          {
+            filter: 'scale',
+            inputs: '[1:v]',
+            outputs: 'scaledOverlay',
+            options: { w: 'iw*0.5', h: 'ih*0.5' },
+          },
+          {
+            filter: 'overlay',
+            inputs: ['[0:v]', 'scaledOverlay'],
+            options: { x: '(main_w-overlay_w)/2', y: '(main_h-overlay_h)/2' },
+          },
+        ])
+        .output(outputPath)
+        .on('end', resolve)
+        .on('error', reject)
+        .run();
+    });
+  }
+
   async mergeVideoSegments(
     chunkPaths: string[],
     outputPath: string,
@@ -203,21 +235,28 @@ export class ReelsService {
     });
   }
 
-  async createAudioFromConversation(conversatonId: string): Promise<string> {
+  async createAudioFromConversation(conversationId: string): Promise<string> {
     const audioPaths: string[] = [];
     const audioDurations: number[] = [];
     const videoChunks: string[] = [];
     const silencePath = './assets/tts/silence.mp3';
 
-    const article = await this.conversationModel.findById(conversatonId).lean();
-    const script = article.script;
+    const conversation = await this.conversationModel
+      .findById(conversationId)
+      .lean();
+    const script = conversation.script;
 
-    const folderPath = `./assets/tts/${conversatonId}`;
+    const article = await this.articleModel
+      .findById(conversation.articleId)
+      .lean();
+    const articleImageUrl = article.imgurl;
+
+    const folderPath = `./assets/tts/${conversationId}`;
     if (!fs.existsSync(folderPath)) {
       fs.mkdirSync(folderPath, { recursive: true });
     }
 
-    const tempVideoDir = `./assets/temp/${conversatonId}`;
+    const tempVideoDir = `./assets/temp/${conversationId}`;
     if (!fs.existsSync(tempVideoDir)) {
       fs.mkdirSync(tempVideoDir, { recursive: true });
     }
@@ -275,7 +314,34 @@ export class ReelsService {
       audioDurations.push(duration);
 
       const videoChunkPath = `${tempVideoDir}/chunk_${i}.mp4`;
-      await this.extractVideoSegment(videoSource, 0, duration, videoChunkPath);
+
+      if (i == 0) {
+        const imageUrl = articleImageUrl;
+        await this.createVideoWithImage(
+          videoSource,
+          imageUrl,
+          duration,
+          videoChunkPath,
+        );
+      } else {
+        const imageUrl = line['imageUrl'] || null;
+        if (imageUrl) {
+          await this.createVideoWithImage(
+            videoSource,
+            imageUrl,
+            duration,
+            videoChunkPath,
+          );
+        } else {
+          await this.extractVideoSegment(
+            videoSource,
+            0,
+            duration,
+            videoChunkPath,
+          );
+        }
+      }
+
       videoChunks.push(videoChunkPath);
 
       // if (i < script.length - 1) {
@@ -287,7 +353,7 @@ export class ReelsService {
     const mergedAudioPath = `${folderPath}/concat.mp3`;
     await this.concatAudioFiles(audioPaths, mergedAudioPath);
 
-    const mergedVideoPath = `./assets/video/${conversatonId}_merged.mp4`;
+    const mergedVideoPath = `./assets/video/${conversationId}_merged.mp4`;
     await this.mergeVideoSegments(videoChunks, mergedVideoPath);
 
     return mergedAudioPath;
