@@ -254,7 +254,10 @@ export class ReelsService {
       }
 
       const speaker = selected.speaker;
-      const videoSource = i%2 == 0? `${selected.videoSource}_up.mp4` : `${selected.videoSource}_down.mp4`;
+      const videoSource =
+        i % 2 == 0
+          ? `${selected.videoSource}_up.mp4`
+          : `${selected.videoSource}_down.mp4`;
 
       const filePath = `${folderPath}/${i}_${speakerKey}.mp3`;
       const audioPath = await this.createAudioFromText(
@@ -359,6 +362,7 @@ export class ReelsService {
   ): Promise<{ finalVideoPath: string }> {
     const inputVideo = `./assets/reels/${conversationId}.mp4`;
     const inputASS = `./assets/subtitles/${conversationId}.ass`;
+    const titleASS = `./assets/subtitles/${conversationId}_title.ass`;
     const outputPath = `./assets/final/${conversationId}_final.mp4`;
 
     if (!fs.existsSync(inputVideo))

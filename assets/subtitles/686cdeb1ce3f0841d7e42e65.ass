@@ -1,0 +1,17 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1280
+PlayResY: 720
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Noto Sans CJK KR,32,&H00FFFFFF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,2,1,5,10,10,10,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,00:00:00.00,00:00:05.54,Default,,0,0,0,,어머 구글클라우드가 서울에서 뭐 대박 터뜨렸다면서? 나만 믿고 설명해봐!
+Dialogue: 0,00:00:05.54,00:00:15.12,Default,,0,0,0,,오케이 내가 간단히 정리해줄게! 구글클라우드는 서울 리전을 통해 데이터 저장부터 머신러닝 작업까지 전부 한국에서 진행할 수 있게 했어!
+Dialogue: 0,00:00:15.12,00:00:20.47,Default,,0,0,0,,아 구글이 뭐 새로운 제품도 내놨다면서? 제미나이 2.5라던데 그게 뭐야?
+Dialogue: 0,00:00:20.47,00:00:29.01,Default,,0,0,0,,제미나이 2.5라는 신모델이야. 이건 가격 대비 퍼포먼스가 뛰어나고 특히 머신러닝 작업을 서울에서 가능하게 하는 핵심 역할을 해!
+Dialogue: 0,00:00:29.01,00:00:33.74,Default,,0,0,0,,그리고 아이언우드? 이건 또 뭐다냐! 대충 들어도 뭔가 대단할 것 같은데~
+Dialogue: 0,00:00:33.74,00:00:41.73,Default,,0,0,0,,아이언우드는 강력한 성능을 자랑하는 구글의 AI용 TPU 장치야. 추론 시대의 주인공이 될 수 있는 가능성을 보여주고 있어!
