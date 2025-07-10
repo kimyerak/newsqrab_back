@@ -48,7 +48,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text`
   // 1. 제목 삽입 (영상 상단, 3초 동안)
   if (title) {
     body.push(
-      `Dialogue: 0,0:00:00.00,0:00:03.00,TitleStyle,,0,0,0,,{\\an8}${title}`,
+      `Dialogue: 0,0:00:00.00,0:00:40.00,TitleStyle,,0,0,0,,{\\an8}${title}`,
     );
   }
 

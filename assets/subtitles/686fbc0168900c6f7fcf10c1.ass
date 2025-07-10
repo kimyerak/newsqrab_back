@@ -1,0 +1,19 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1280
+PlayResY: 720
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Noto Sans CJK KR,32,&H00FFFFFF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,2,1,5,10,10,10,1
+Style: TitleStyle,Noto Sans CJK KR,35,&H00FFFFFF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,3,1,8,10,10,80,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:40.00,TitleStyle,,0,0,0,,{\an8}갤럭시 AI 4억대 변신 예고
+Dialogue: 0,00:00:00.00,00:00:07.51,Default,,0,0,0,,어머 갤럭시 AI가 4억대나 탑재된다고? 이거 진짜 대단한데 나도 AI 쓰면 인기 쭉쭉 올라가겠지!?
+Dialogue: 0,00:00:07.51,00:00:14.47,Default,,0,0,0,,물론이지! 올해 플래그십에서 중저가 모델까지 AI가 다 들어간대. 너도 트렌드에 올라타야지!
+Dialogue: 0,00:00:14.47,00:00:18.76,Default,,0,0,0,,트라이폴드랑 XR헤드셋도 나온다며? 이건 나의 신무기 될지도?
+Dialogue: 0,00:00:18.76,00:00:25.00,Default,,0,0,0,,그렇지! 연내 출시 목표로 하고 있어. 각각의 장점을 잘 살려서 멋진 결과물 기대해봐!
+Dialogue: 0,00:00:25.00,00:00:28.87,Default,,0,0,0,,헬스 플랫폼에 AI까지? 내 건강도 척척 알려줄까?
+Dialogue: 0,00:00:28.87,00:00:36.84,Default,,0,0,0,,맞아 삼성은 디지털 헬스도 AI 중심으로 바꿀 계획이래. 웨어러블 기기와 병원 데이터 연결해서 더 똑똑해진다니까!
