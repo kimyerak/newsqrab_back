@@ -13,7 +13,8 @@ import {
 import { Article } from '../article/article.schema';
 import { ConfigService } from '@nestjs/config';
 import { ImageGenerationService } from '../openai/image-generation.service';
-import { generatePromptFromCharacter2Lines } from '../openai/prompts/prompt_image'; // 새 프롬프트 함수
+import { generatePromptFromCharacter2Lines } from '../openai/prompts/prompt_image';
+import { generateTitlePrompt } from 'src/openai/prompts/prompt_title';
 
 @Injectable()
 export class ConversationService {
@@ -44,6 +45,11 @@ export class ConversationService {
     const script = parseQnAScript(gptResponse, character1, character2);
     const updatedScript = [];
 
+    // 🔹 제목 생성 프롬프트
+    const titlePrompt = generateTitlePrompt(article.content);
+    const rawTitle = await this.openAiService.generateText(titlePrompt);
+    const title = rawTitle.replace(/["'\n]/g, '').trim(); // 필요없는 문자 제거
+
     for (const line of script) {
       if (line[character2]) {
         const prompt = generatePromptFromCharacter2Lines([line[character2]]);
@@ -65,7 +71,7 @@ export class ConversationService {
       articleId: new Types.ObjectId(articleId),
       character1,
       character2,
-      title: `${character2} explains the article`, // 예시 제목
+      title, // 예시 제목
     });
 
     conversation.parentId = new Types.ObjectId(conversation._id as string);
@@ -119,6 +125,7 @@ export class ConversationService {
       articleId: new Types.ObjectId(articleId),
       character1,
       character2,
+      title: parent.title,
     });
   }
 
@@ -142,14 +149,37 @@ export class ConversationService {
       this.configService.get<string>('RAG_SERVER_URL') ??
       'http://localhost:8000';
 
-    const response = await axios.post(`${ragServerUrl}/rag`, {
-      content: article.content,
-      originalScript: originalScriptText,
-      character1,
-      character2,
-    });
+    let script = [];
 
-    const script = parseQnAScript(response.data.script, character1, character2);
+    // const response = await axios.post(`${ragServerUrl}/rag`, {
+    //   content: article.content,
+    //   originalScript: originalScriptText,
+    //   character1,
+    //   character2,
+    //   title: parent.title,
+    // });
+
+    // const script = parseQnAScript(response.data.script, character1, character2);
+
+    try {
+      const response = await axios.post(`${ragServerUrl}/rag`, {
+        content: article.content,
+        originalScript: originalScriptText,
+        character1,
+        character2,
+        title: parent.title,
+      });
+      console.log('🟢 RAG 응답:', response.data);
+
+      if (!response.data || !response.data.script) {
+        throw new Error('RAG 서버 응답에 script가 없습니다.');
+      }
+
+      script = parseQnAScript(response.data.script, character1, character2);
+    } catch (err) {
+      console.error('🔴 RAG 호출 실패:', err);
+      throw new Error('RAG 서버 호출에 실패했습니다.');
+    }
 
     // ✅ 이미지 URL 복사
     const imageUrl = parent.script.find((line) => line.imageUrl)?.imageUrl;

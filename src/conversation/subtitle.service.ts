@@ -5,6 +5,7 @@ import { Model } from 'mongoose';
 import { Conversation } from './conversation.schema';
 import { getAudioDuration } from './utils/get-audio-duration';
 import { generateASS } from './utils/ass-subtitle.util';
+
 import * as fs from 'fs';
 import * as path from 'path';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -19,56 +20,6 @@ export class SubtitleService {
     @InjectModel(Conversation.name)
     private conversationModel: Model<Conversation>,
   ) {}
-
-  async createSubtitleVideo(
-    conversationId: string,
-    category: string,
-  ): Promise<string> {
-    const conversation = await this.conversationModel
-      .findById(conversationId)
-      .lean();
-
-    if (!conversation) {
-      throw new NotFoundException('Conversation not found');
-    }
-
-    const script = conversation.script;
-    const audioDir = `./assets/tts/${conversationId}`;
-    const durations: number[] = [];
-
-    for (let i = 0; i < script.length; i++) {
-      const speakerKey = Object.keys(script[i])[0];
-      const fileName = `${i}_${speakerKey}.mp3`;
-      const filePath = path.join(audioDir, fileName);
-      const duration = await getAudioDuration(filePath);
-      durations.push(duration);
-    }
-
-    // ✅ 올바른 방식
-    const subtitles = script.map((line, index) => {
-      const text = Object.values(line)[0]; // "헉, ..." or "응, ..." 같은 대사
-      const start = durations.slice(0, index).reduce((a, b) => a + b, 0);
-      const end = start + durations[index];
-      return { text, start, end };
-    });
-
-    const assContent = generateASS(subtitles);
-    const assFilePath = `./assets/subtitles/${conversationId}.ass`;
-    fs.writeFileSync(assFilePath, assContent);
-
-    const videoInputPath = `./assets/video/${category}.mp4`;
-    const outputVideoPath = `./assets/reels/${conversationId}_subtitled.mp4`;
-
-    await new Promise<void>((resolve, reject) => {
-      ffmpeg(videoInputPath)
-        .outputOptions(`-vf`, `ass=${assFilePath}`)
-        .on('error', reject)
-        .on('end', () => resolve())
-        .save(outputVideoPath);
-    });
-
-    return outputVideoPath;
-  }
 
   async saveASSFromConversation(conversationId: string): Promise<string> {
     const conversation = await this.conversationModel
@@ -98,9 +49,25 @@ export class SubtitleService {
       return { text, start, end };
     });
 
-    const assContent = generateASS(subtitles);
+    const assContent = generateASS(subtitles, conversation.title);
     const assFilePath = `./assets/subtitles/${conversationId}.ass`;
     fs.writeFileSync(assFilePath, assContent);
+
+    // // 🔥 제목 자막도 저장
+    // const titleASSContent = generateTitleASS(conversation.title);
+    // if (!conversation.title) {
+    //   console.error('❌ conversation.title is missing!');
+    // } else {
+    //   console.log('✅ conversation.title:', conversation.title);
+    // }
+    // const titleASSPath = `./assets/subtitles/${conversationId}_title.ass`;
+
+    // try {
+    //   fs.writeFileSync(titleASSPath, titleASSContent);
+    //   console.log('✅ Title ASS file saved at:', titleASSPath);
+    // } catch (e) {
+    //   console.error('❌ Failed to write title ASS file:', e);
+    // }
 
     if (!fs.existsSync(assFilePath)) {
       throw new NotFoundException(`TTS audio file not found: ${assFilePath}`);
