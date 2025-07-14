@@ -186,7 +186,7 @@ export class ReelsService {
     duration: number,
     outputPath: string,
   ): Promise<void> {
-    console.log("concat", imageUrl);
+    console.log('concat', imageUrl);
     return new Promise((resolve, reject) => {
       ffmpeg(inputPath)
         .input(imageUrl)
@@ -202,7 +202,10 @@ export class ReelsService {
           {
             filter: 'overlay',
             inputs: ['[0:v]', 'scaledOverlay'],
-            options: { x: '(main_w-overlay_w)/2', y: '(main_h-overlay_h)/2 - 300' },
+            options: {
+              x: '(main_w-overlay_w)/2',
+              y: '(main_h-overlay_h)/2 - 300',
+            },
           },
         ])
         .output(outputPath)
@@ -315,33 +318,14 @@ export class ReelsService {
 
       const videoChunkPath = `${tempVideoDir}/chunk_${i}.mp4`;
 
-      if (i == 0) {
-        const imageUrl = articleImageUrl;
-        await this.createVideoWithImage(
-          videoSource,
-          imageUrl,
-          duration,
-          videoChunkPath,
-        );
+      if (i % 2 == 0) {
+        const imageUrl = script[i+1]['imageUrl'];
+        await this.createVideoWithImage(videoSource, imageUrl, duration, videoChunkPath);
       } else {
-        const imageUrl = line['imageUrl'] || null;
-        if (imageUrl) {
-          await this.createVideoWithImage(
-            videoSource,
-            imageUrl,
-            duration,
-            videoChunkPath,
-          );
-        } else {
-          await this.extractVideoSegment(
-            videoSource,
-            0,
-            duration,
-            videoChunkPath,
-          );
-        }
+        const imageUrl = line['imageUrl'];
+        await this.createVideoWithImage(videoSource, imageUrl, duration, videoChunkPath); 
       }
-
+      
       videoChunks.push(videoChunkPath);
 
       // if (i < script.length - 1) {
