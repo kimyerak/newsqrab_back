@@ -198,6 +198,7 @@ export class ConversationService {
       articleId: new Types.ObjectId(articleId),
       character1,
       character2,
+      title: parent.title,
     });
   }
 }
