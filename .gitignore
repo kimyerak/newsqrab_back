@@ -41,7 +41,11 @@ lerna-debug.log*
 .env.test.local
 .env.production.local
 .env.local
-assets/temp/concat.txt
+assets/temp/
+assets/tts/
+assets/final/
+assets/reels/
+assets/subtitles/
 
 # temp directory
 .temp
