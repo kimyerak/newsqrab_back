@@ -10,6 +10,7 @@ import { S3Service } from '../s3/s3.service';
 import { Readable } from 'stream';
 import { merge } from 'cheerio/lib/static';
 import { Conversation } from '../conversation/conversation.schema';
+import { createVideoWithImage } from './utils/downloadImage.util';
 
 import * as fs from 'fs';
 const axios = require('axios');
@@ -179,41 +180,40 @@ export class ReelsService {
         .run();
     });
   }
-
-  async createVideoWithImage(
-    inputPath: string,
-    imageUrl: string,
-    duration: number,
-    outputPath: string,
-  ): Promise<void> {
-    console.log('concat', imageUrl);
-    return new Promise((resolve, reject) => {
-      ffmpeg(inputPath)
-        .input(imageUrl)
-        .setStartTime(0)
-        .setDuration(duration)
-        .complexFilter([
-          {
-            filter: 'scale',
-            inputs: '[1:v]',
-            outputs: 'scaledOverlay',
-            options: { w: 'iw*0.5', h: 'ih*0.5' },
-          },
-          {
-            filter: 'overlay',
-            inputs: ['[0:v]', 'scaledOverlay'],
-            options: {
-              x: '(main_w-overlay_w)/2',
-              y: '(main_h-overlay_h)/2 - 300',
-            },
-          },
-        ])
-        .output(outputPath)
-        .on('end', resolve)
-        .on('error', reject)
-        .run();
-    });
-  }
+  // async createVideoWithImage(
+  //   inputPath: string,
+  //   imageUrl: string,
+  //   duration: number,
+  //   outputPath: string,
+  // ): Promise<void> {
+  //   console.log('concat', imageUrl);
+  //   return new Promise((resolve, reject) => {
+  //     ffmpeg(inputPath)
+  //       .input(imageUrl)
+  //       .setStartTime(0)
+  //       .setDuration(duration)
+  //       .complexFilter([
+  //         {
+  //           filter: 'scale',
+  //           inputs: '[1:v]',
+  //           outputs: 'scaledOverlay',
+  //           options: { w: 'iw*0.5', h: 'ih*0.5' },
+  //         },
+  //         {
+  //           filter: 'overlay',
+  //           inputs: ['[0:v]', 'scaledOverlay'],
+  //           options: {
+  //             x: '(main_w-overlay_w)/2',
+  //             y: '(main_h-overlay_h)/2 - 300',
+  //           },
+  //         },
+  //       ])
+  //       .output(outputPath)
+  //       .on('end', resolve)
+  //       .on('error', reject)
+  //       .run();
+  //   });
+  // }
 
   async mergeVideoSegments(
     chunkPaths: string[],
@@ -319,13 +319,23 @@ export class ReelsService {
       const videoChunkPath = `${tempVideoDir}/chunk_${i}.mp4`;
 
       if (i % 2 == 0) {
-        const imageUrl = script[i+1]['imageUrl'];
-        await this.createVideoWithImage(videoSource, imageUrl, duration, videoChunkPath);
+        const imageUrl = script[i + 1]['imageUrl'];
+        await createVideoWithImage(
+          videoSource,
+          imageUrl,
+          duration,
+          videoChunkPath,
+        );
       } else {
         const imageUrl = line['imageUrl'];
-        await this.createVideoWithImage(videoSource, imageUrl, duration, videoChunkPath); 
+        await createVideoWithImage(
+          videoSource,
+          imageUrl,
+          duration,
+          videoChunkPath,
+        );
       }
-      
+
       videoChunks.push(videoChunkPath);
 
       // if (i < script.length - 1) {
