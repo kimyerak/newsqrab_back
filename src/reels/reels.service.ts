@@ -202,7 +202,7 @@ export class ReelsService {
           {
             filter: 'overlay',
             inputs: ['[0:v]', 'scaledOverlay'],
-            options: { x: '(main_w-overlay_w)/2', y: '(main_h-overlay_h)/2' },
+            options: { x: '(main_w-overlay_w)/2', y: '(main_h-overlay_h)/2 - 300' },
           },
         ])
         .output(outputPath)
@@ -295,8 +295,8 @@ export class ReelsService {
       const speaker = selected.speaker;
       const videoSource =
         i % 2 == 0
-          ? `${selected.videoSource}_up.mp4`
-          : `${selected.videoSource}_down.mp4`;
+          ? `${selected.videoSource}_l.mp4`
+          : `${selected.videoSource}_r.mp4`;
 
       const filePath = `${folderPath}/${i}_${speakerKey}.mp3`;
       const audioPath = await this.createAudioFromText(
