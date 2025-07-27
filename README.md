@@ -1,3 +1,5 @@
+![포스터최종본0623발표](https://github.com/user-attachments/assets/8b843b65-87d2-4ba2-9c16-be10e2987e3f)
+
 # 📡 Newsqrab Backend
 
 **Newsqrab**의 백엔드 서버는 NestJS 기반으로 구축되었으며, MongoDB를 통해 기사 데이터를 저장·관리하고, OpenAI 및 Puppeteer를 활용해 자동 요약과 영상 콘텐츠 생성을 수행합니다.  
